@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% import "macros.html" as ui %}
+{% block title %}{{ title }} — {{ client }}{% endblock %}
+{% block content %}
+{{ ui.cover(title, client, domain, eyebrow, date, sphere) }}
+
+{# --- Sommaire --- #}
+<section class="page">
+  <div class="doc-title">{{ title }} · {{ domain }}</div>
+  <p class="kicker">Sommaire</p>
+  <h2>Ce rapport en un coup d'œil</h2>
+  {{ ui.toc(sections) }}
+  <hr>
+  <p class="lead">{{ intro }}</p>
+  <p><strong>Période couverte&nbsp;:</strong> {{ period }}. <strong>Sources&nbsp;:</strong> {{ sources|join(", ") }}.</p>
+</section>
+
+{# --- 01 Synthèse --- #}
+<section class="page">
+  {{ ui.section_title("synthese", 1, "Synthèse") }}
+  <div class="synthesis">{% for p in synthesis %}<p>{{ p }}</p>{% endfor %}</div>
+  {{ ui.kpis(kpis) }}
+  <h3>Scores avant / après</h3>
+  {% for s in scores %}{{ ui.score_bar(s.label, s.before, s.after) }}{% endfor %}
+</section>
+
+{# --- 02 Actions menées --- #}
+<section class="page">
+  {{ ui.section_title("actions", 2, "Actions menées") }}
+  <p>{{ actions_intro }}</p>
+  {% for a in actions %}{{ ui.action(loop.index, a) }}{% endfor %}
+</section>
+
+{# --- 03 Résultats --- #}
+<section class="page">
+  {{ ui.section_title("resultats", 3, "Résultats") }}
+  <p>{{ results_intro }}</p>
+  <table>
+    <thead><tr><th>Indicateur</th><th class="num">Avant</th><th class="num">Après</th><th class="num">Évolution</th></tr></thead>
+    <tbody>
+      {% for r in results %}<tr><td>{{ r.label }}</td><td class="num">{{ r.before }}</td><td class="num"><strong>{{ r.after }}</strong></td><td class="num {{ r.trend }}">{{ r.delta }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% if pages_table %}
+  <h3>Pages qui progressent le plus</h3>
+  <table>
+    <thead><tr><th>Page</th><th>Requête principale</th><th class="num">Position</th><th class="num">Clics</th></tr></thead>
+    <tbody>
+      {% for r in pages_table %}<tr><td class="mono">{{ r.page }}</td><td>{{ r.query }}</td><td class="num"><span class="before">{{ r.pos_before }}</span> → {{ r.pos_after }}</td><td class="num">{{ r.clicks }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  {% for c in callouts %}<div class="callout {{ c.kind }}"><strong>{{ c.title }}&nbsp;:</strong> {{ c.text }}</div>{% endfor %}
+</section>
+
+{# --- 04 Prochaines étapes --- #}
+<section class="page">
+  {{ ui.section_title("suite", 4, "Prochaines étapes") }}
+  {% for a in next_steps %}{{ ui.action(loop.index, a) }}{% endfor %}
+</section>
+
+{{ ui.back(sphere_small) }}
+{% endblock %}

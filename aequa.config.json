@@ -1,0 +1,14 @@
+{
+  "referential": "eaa",
+  "domains": ["a11y", "consent", "legal", "aiact", "rgpd"],
+  "failUnder": 95,
+  "lang": "fr",
+  "site": {
+    "controllerName": "François Dasylva (EI, botfx) — SIRET 53916294100022",
+    "contactEmail": "contact@botfx.fr",
+    "dpo": "François Dasylva — dpo@botfx.fr",
+    "hostName": "Cloudflare, Inc. (Cloudflare Pages)",
+    "aiSystems": "Conception et rédaction du site | IA générative (assistance) | Anthropic Claude | Contenus relus et validés par l'éditeur",
+    "processingActivities": "Échanges par email | Répondre aux demandes et préparer des devis | Mesures précontractuelles (art. 6.1.b) | Email, nom, contenu du message | Prospects et clients | Éditeur uniquement | 3 ans après le dernier échange"
+  }
+}

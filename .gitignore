@@ -1,0 +1,7 @@
+dist/
+__pycache__/
+.DS_Store
+.wrangler/
+brand/pdf/output/
+ops/
+CONTEXT_RECOVERY.md

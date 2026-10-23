@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:G;src:url(../assets/fonts/geist-latin-wght-normal.woff2)}
+@font-face{font-family:M;src:url(../assets/fonts/geist-mono-latin-wght-normal.woff2)}
+html,body{margin:0;width:1200px;height:630px;background:#050506;overflow:hidden;font-family:G}
+.c{position:absolute;inset:0;background:radial-gradient(50% 70% at 78% 50%,rgba(255,255,255,.12),transparent 60%)}
+canvas{position:absolute;inset:0}
+.t{position:absolute;left:84px;top:150px;color:#fff}
+.k{font-family:M;font-size:22px;letter-spacing:.18em;text-transform:uppercase;color:#a3a7ae}
+h1{font-size:92px;line-height:.95;letter-spacing:-.045em;margin:26px 0 0;font-weight:600;max-width:11ch}
+.s{background:linear-gradient(180deg,#fff,#d9dce1 38%,#8b9098 72%,#c9ccd1);-webkit-background-clip:text;color:transparent}
+.f{position:absolute;left:84px;bottom:60px;font-family:M;font-size:22px;color:#a3a7ae}.f b{color:#fff;font-weight:500}
+</style></head><body><div class="c"></div><canvas id="c" width="1200" height="630"></canvas>
+<div class="t"><div class="k">WordPress · Automatisation · IA</div><h1>Vos opérations, <span class="s">en pilote automatique.</span></h1></div>
+<div class="f"><b>botfx.fr</b> — François Dasylva</div>
+<script>const x=document.getElementById('c').getContext('2d'),N=1600,g=Math.PI*(3-Math.sqrt(5)),R=210,cx=900,cy=315,a=.5,b=.35;
+for(let i=0;i<N;i++){const y=1-i/(N-1)*2,r=Math.sqrt(1-y*y),t=g*i;let X=Math.cos(t)*r,Z=Math.sin(t)*r;
+const x1=X*Math.cos(a)-Z*Math.sin(a),z1=X*Math.sin(a)+Z*Math.cos(a),y1=y*Math.cos(b)-z1*Math.sin(b),z2=y*Math.sin(b)+z1*Math.cos(b);
+const p=2.6/(2.6+z2),d=(1-z2)/2;x.fillStyle=`rgba(230,232,236,${.08+d*.75})`;const s=(.6+d*1.5)*p;x.fillRect(cx+x1*R*p,cy+y1*R*p,s,s)}
+x.strokeStyle='rgba(255,255,255,.08)';x.beginPath();x.ellipse(cx,cy,R*1.45,R*.42,-.35,0,7);x.stroke();</script></body></html>

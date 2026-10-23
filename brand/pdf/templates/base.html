@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="fr"{% if theme == "dark" %} data-theme="dark"{% endif %}>
+<head>
+<meta charset="utf-8">
+<title>{% block title %}botfx{% endblock %}</title>
+<meta name="author" content="François Dasylva — botfx">
+<link rel="stylesheet" href="style.css">
+<style>{% block extra_css %}{% endblock %}</style>
+</head>
+<body>
+{% block content %}{% endblock %}
+</body>
+</html>

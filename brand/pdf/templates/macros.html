@@ -1,0 +1,71 @@
+{# botfx — composants réutilisables. Usage : {% import "macros.html" as ui %} #}
+
+{% macro cover(title, client, domain, eyebrow, date, sphere) -%}
+<section class="cover">
+  <div class="glow"></div>
+  <div class="art">{{ sphere|safe }}</div>
+  <div class="brand"><span class="dot"></span>botfx</div>
+  <div class="content">
+    <span class="eyebrow">{{ eyebrow }}</span>
+    <h1>{{ title }}</h1>
+    <p class="client">{{ client }}</p>
+    <p class="domain">{{ domain }}</p>
+  </div>
+  <div class="meta"><span>Préparé par François Dasylva · botfx</span><span>{{ date }}</span></div>
+</section>
+{%- endmacro %}
+
+{% macro toc(sections) -%}
+<ol class="toc">
+  {% for s in sections %}<li><span class="n">{{ "%02d"|format(loop.index) }}</span><a href="#{{ s.id }}">{{ s.title }}</a></li>{% endfor %}
+</ol>
+{%- endmacro %}
+
+{% macro section_title(id, n, title) -%}
+<p class="kicker">{{ "%02d"|format(n) }}</p>
+<h2 id="{{ id }}">{{ title }}</h2>
+{%- endmacro %}
+
+{% macro kpis(items) -%}
+<div class="kpis">
+  {% for k in items %}
+  <div class="kpi">
+    <div class="label">{{ k.label }}</div>
+    <div class="value">{{ k.value }}{% if k.unit %}<span class="unit"> {{ k.unit }}</span>{% endif %}</div>
+    {% if k.delta %}<div class="delta {{ k.trend|default('flat') }}">{{ k.delta }}</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro action(n, a) -%}
+<div class="action">
+  <div class="head"><span class="num">{{ "%02d"|format(n) }}</span><span class="title">{{ a.title }}</span></div>
+  <div class="body">{% for p in a.detail %}<p>{{ p }}</p>{% endfor %}</div>
+  <div class="tags">
+    <span class="badge {{ a.status }}">{{ {'done':'Fait','progress':'En cours','todo':'À faire'}[a.status] }}</span>
+    {% if a.impact %}<span class="badge {% if a.impact == 'Fort' %}high{% endif %}">Impact {{ a.impact }}</span>{% endif %}
+    {% if a.area %}<span class="badge">{{ a.area }}</span>{% endif %}
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro score_bar(label, before, after) -%}
+<div class="score-bar">
+  <span class="label">{{ label }}</span>
+  <span class="track">{% if before is not none %}<span class="fill before" style="width: {{ before }}%"></span>{% endif %}<span class="fill after" style="width: {{ after }}%"></span></span>
+  <span class="val">{% if before is not none %}{{ before }} → {% endif %}<span class="grade-{{ after|grade }}">{{ after }}</span>/100</span>
+</div>
+{%- endmacro %}
+
+{% macro back(sphere) -%}
+<section class="back">
+  <div class="art">{{ sphere|safe }}</div>
+  <div class="content">
+    <div class="logo"><span class="dot"></span>botfx</div>
+    <p class="tagline">Vos opérations, en pilote automatique.</p>
+    <p class="contact">botfx.fr<br>contact@botfx.fr<br>linkedin.com/in/francois-dasylva</p>
+  </div>
+  <p class="legal">François Dasylva — Entrepreneur individuel · SIRET 53916294100022 · Document confidentiel</p>
+</section>
+{%- endmacro %}

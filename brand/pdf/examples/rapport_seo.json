@@ -1,0 +1,62 @@
+{
+  "_note": "Données FICTIVES de démonstration — remplacer par les vraies données client.",
+  "title": "Rapport d'actions SEO",
+  "eyebrow": "Référencement · Bilan trimestriel",
+  "client": "Exemple Client SARL",
+  "domain": "exemple-client.fr",
+  "date": "Octobre 2026",
+  "period": "du 1er juillet au 30 septembre 2026",
+  "sources": ["Google Search Console", "Google Analytics 4", "Aequa", "crawl botfx"],
+  "intro": "Ce document récapitule les actions de référencement menées sur exemple-client.fr ce trimestre, leurs résultats mesurés et les priorités pour la suite.",
+  "sections": [
+    {"id": "synthese", "title": "Synthèse"},
+    {"id": "actions", "title": "Actions menées"},
+    {"id": "resultats", "title": "Résultats"},
+    {"id": "suite", "title": "Prochaines étapes"}
+  ],
+  "synthesis": [
+    "Le trafic organique progresse nettement sur le trimestre, porté par la refonte des balises et la nouvelle page de service.",
+    "Les fondations techniques sont désormais saines : plus aucune erreur d'indexation bloquante, Core Web Vitals au vert sur mobile."
+  ],
+  "kpis": [
+    {"label": "Clics organiques", "value": "+38", "unit": "%", "delta": "vs trimestre précédent", "trend": "up"},
+    {"label": "Impressions", "value": "+61", "unit": "%", "delta": "vs trimestre précédent", "trend": "up"},
+    {"label": "Position moyenne", "value": "14,2", "delta": "−6,1 places", "trend": "up"},
+    {"label": "Pages indexées", "value": "48", "delta": "+11", "trend": "up"}
+  ],
+  "scores": [
+    {"label": "SEO technique", "before": 54, "after": 91},
+    {"label": "Performance mobile", "before": 41, "after": 88},
+    {"label": "Accessibilité", "before": 62, "after": 97},
+    {"label": "Visibilité IA (GEO)", "before": null, "after": 64}
+  ],
+  "actions_intro": "Actions classées par ordre de réalisation. Chaque action est vérifiée après mise en ligne.",
+  "actions": [
+    {"title": "Balises title et meta description réécrites", "detail": ["32 pages reprises : une requête cible par page, longueur maîtrisée, promesse claire.", "Suppression de 9 titres dupliqués."], "status": "done", "impact": "Fort", "area": "On-page"},
+    {"title": "Erreurs d'indexation corrigées", "detail": ["14 URL en erreur 404 redirigées (301), sitemap regénéré et soumis.", "Pages de filtres passées en noindex pour éviter le contenu dupliqué."], "status": "done", "impact": "Fort", "area": "Technique"},
+    {"title": "Performance mobile", "detail": ["Images converties en AVIF/WebP et dimensionnées, polices préchargées, scripts tiers différés.", "LCP mobile : 4,8 s → 1,9 s."], "status": "done", "impact": "Moyen", "area": "Technique"},
+    {"title": "Données structurées", "detail": ["Ajout LocalBusiness, Service et FAQPage sur les pages clés, validées sans erreur."], "status": "done", "impact": "Moyen", "area": "Schema"},
+    {"title": "Nouvelle page « Rénovation énergétique »", "detail": ["Page pilier de 1 400 mots, FAQ intégrée, maillage depuis 6 pages existantes."], "status": "progress", "impact": "Fort", "area": "Contenu"}
+  ],
+  "results_intro": "Comparaison entre le trimestre précédent et ce trimestre, à périmètre identique.",
+  "results": [
+    {"label": "Clics organiques / mois", "before": "1 240", "after": "1 712", "delta": "+38 %", "trend": "up"},
+    {"label": "Impressions / mois", "before": "31 800", "after": "51 200", "delta": "+61 %", "trend": "up"},
+    {"label": "CTR moyen", "before": "3,9 %", "after": "3,3 %", "delta": "−0,6 pt", "trend": "down"},
+    {"label": "Requêtes en top 10", "before": "27", "after": "58", "delta": "+31", "trend": "up"}
+  ],
+  "pages_table": [
+    {"page": "/renovation-energetique/", "query": "rénovation énergétique landes", "pos_before": "34", "pos_after": "7", "clicks": "212"},
+    {"page": "/pompe-a-chaleur/", "query": "installateur pompe à chaleur dax", "pos_before": "18", "pos_after": "4", "clicks": "187"},
+    {"page": "/contact/", "query": "exemple client avis", "pos_before": "9", "pos_after": "2", "clicks": "96"}
+  ],
+  "callouts": [
+    {"kind": "warn", "title": "À surveiller", "text": "le CTR baisse mécaniquement car de nombreuses nouvelles requêtes apparaissent en page 2 ; il remontera avec leur progression."},
+    {"kind": "ok", "title": "Bonne nouvelle", "text": "la marque est désormais citée par ChatGPT et Perplexity sur 3 requêtes locales sur 10 testées."}
+  ],
+  "next_steps": [
+    {"title": "Publier 2 pages services supplémentaires", "detail": ["Cibles : « isolation des combles » et « audit énergétique »."], "status": "todo", "impact": "Fort", "area": "Contenu"},
+    {"title": "Campagne d'avis Google", "detail": ["Objectif : 20 nouveaux avis, réponse systématique sous 48 h."], "status": "todo", "impact": "Moyen", "area": "Local"},
+    {"title": "Suivi GEO mensuel", "detail": ["Mesurer la présence de la marque dans les réponses des IA sur 10 requêtes cibles."], "status": "todo", "impact": "Moyen", "area": "GEO"}
+  ]
+}

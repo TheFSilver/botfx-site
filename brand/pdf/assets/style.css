@@ -1,0 +1,150 @@
+/* botfx — PDF framework (WeasyPrint). Noir / argent / blanc.
+   Couverture + 4e de couverture : noir. Pages intérieures : clair (défaut) ou sombre (html[data-theme=dark]). */
+
+@font-face { font-family: "Geist"; src: url("fonts/Geist-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "Geist"; src: url("fonts/Geist-Medium.ttf"); font-weight: 500; }
+@font-face { font-family: "Geist"; src: url("fonts/Geist-SemiBold.ttf"); font-weight: 600; }
+@font-face { font-family: "Geist"; src: url("fonts/Geist-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Geist Mono"; src: url("fonts/GeistMono-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "Geist Mono"; src: url("fonts/GeistMono-Medium.ttf"); font-weight: 500; }
+
+:root {
+  --black: #050506; --black-2: #0B0B0D; --black-card: #111114;
+  --silver-1: #FFFFFF; --silver-2: #D9DCE1; --silver-3: #8B9098; --silver-4: #C9CCD1;
+  --fg-dark: #F5F5F6; --muted-dark: #A3A7AE; --dim-dark: #878B93;
+  /* thème intérieur (clair par défaut) */
+  --bg: #FFFFFF; --bg-2: #F6F6F7; --rule: #E4E4E7;
+  --fg: #0A0A0B; --fg-2: #3F3F46; --fg-3: #71717A;
+  --positive: #1F9D63; --warning: #B7791F; --negative: #C8413A;
+  --grade-a: #1F9D63; --grade-b: #5E9E4A; --grade-c: #B7951F; --grade-d: #C9772B; --grade-e: #C8413A; --grade-f: #962020;
+}
+html[data-theme="dark"] {
+  --bg: #050506; --bg-2: #111114; --rule: rgba(255,255,255,.10);
+  --fg: #F5F5F6; --fg-2: #C4C7CD; --fg-3: #A3A7AE;
+  --positive: #4ADE80; --warning: #E8C468; --negative: #F07167;
+}
+
+/* ---------- pages ---------- */
+/* Note : WeasyPrint ne résout pas les var() dans @page → couleurs littérales ; le thème sombre est injecté par generate_report.py (DARK_PAGE_CSS). */
+@page {
+  size: A4;
+  margin: 22mm 16mm 22mm 16mm;
+  background: #FFFFFF;
+  @top-left { content: "● botfx"; font-family: "Geist"; font-weight: 600; font-size: 9pt; color: #0A0A0B; }
+  @top-right { content: string(doc-title); font-family: "Geist Mono"; font-size: 7.5pt; color: #71717A; letter-spacing: .06em; text-transform: uppercase; }
+  @bottom-left { content: "botfx.fr · contact@botfx.fr"; font-family: "Geist Mono"; font-size: 7.5pt; color: #71717A; }
+  @bottom-center { content: "Confidentiel"; font-family: "Geist Mono"; font-size: 7pt; color: #71717A; letter-spacing: .14em; text-transform: uppercase; }
+  @bottom-right { content: "Page " counter(page) " / " counter(pages); font-family: "Geist Mono"; font-size: 7.5pt; color: #71717A; }
+}
+@page cover { margin: 0; background: #050506;
+  @top-left { content: none; } @top-right { content: none; } @bottom-left { content: none; } @bottom-center { content: none; } @bottom-right { content: none; } }
+@page backcover { margin: 0; background: #050506;
+  @top-left { content: none; } @top-right { content: none; } @bottom-left { content: none; } @bottom-center { content: none; } @bottom-right { content: none; } }
+
+html { font-family: "Geist", sans-serif; font-size: 10pt; line-height: 1.55; color: var(--fg); }
+body { margin: 0; }
+* { box-sizing: border-box; }
+.mono { font-family: "Geist Mono", monospace; letter-spacing: .02em; }
+.doc-title { string-set: doc-title content(); display: block; height: 0; overflow: hidden; font-size: 0; line-height: 0; margin: 0; }
+
+/* page structure */
+.page { page-break-after: always; }
+.page:last-child { page-break-after: auto; }
+.card, .action, .kpi, tr, .callout, .score-bar { page-break-inside: avoid; }
+p, li, td { orphans: 3; widows: 3; }
+h2, h3, .kicker { page-break-after: avoid; }
+
+/* ---------- couverture ---------- */
+.cover { page: cover; position: relative; width: 210mm; height: 297mm; background: #050506; color: #F5F5F6; overflow: hidden; }
+.cover .art { position: absolute; right: -40mm; top: 38mm; width: 175mm; height: 175mm; }
+.cover .art svg { width: 100%; height: 100%; }
+.cover .glow { position: absolute; right: -30mm; top: 20mm; width: 180mm; height: 180mm; background: radial-gradient(circle, rgba(255,255,255,.09), rgba(255,255,255,0) 60%); }
+.cover .brand { position: absolute; left: 18mm; top: 18mm; font-weight: 600; font-size: 13pt; letter-spacing: -.02em; }
+.cover .brand .dot, .back .dot { display: inline-block; width: 7pt; height: 7pt; border-radius: 50%; background: #fff; margin-right: 6pt; vertical-align: 1pt; }
+.cover .content { position: absolute; left: 18mm; right: 18mm; bottom: 46mm; }
+.cover .eyebrow { font-family: "Geist Mono"; font-size: 8.5pt; letter-spacing: .2em; text-transform: uppercase; color: #A3A7AE; border: .6pt solid rgba(255,255,255,.18); border-radius: 20pt; padding: 4pt 10pt; display: inline-block; }
+.cover h1 { font-size: 40pt; line-height: .98; letter-spacing: -.04em; font-weight: 600; margin: 14pt 0 10pt; max-width: 150mm; }
+.cover .client { font-size: 13pt; color: #D9DCE1; margin: 0; }
+.cover .domain { font-family: "Geist Mono"; font-size: 11pt; color: #A3A7AE; margin: 3pt 0 0; }
+.cover .meta { position: absolute; left: 18mm; right: 18mm; bottom: 18mm; display: flex; justify-content: space-between; font-family: "Geist Mono"; font-size: 8pt; color: #878B93; border-top: .6pt solid rgba(255,255,255,.12); padding-top: 8pt; }
+.silver { color: #C9CCD1; }  /* WeasyPrint : pas de background-clip:text → argent plein */
+
+/* ---------- titres ---------- */
+.kicker { font-family: "Geist Mono"; font-size: 8pt; letter-spacing: .18em; text-transform: uppercase; color: var(--fg-3); margin: 0 0 4pt; }
+h2 { font-size: 22pt; line-height: 1.05; letter-spacing: -.03em; font-weight: 600; margin: 0 0 12pt; color: var(--fg); bookmark-level: 1; }
+h3 { font-size: 12.5pt; letter-spacing: -.01em; font-weight: 600; margin: 16pt 0 6pt; color: var(--fg); bookmark-level: 2; }
+h4 { font-size: 10pt; font-weight: 600; margin: 12pt 0 4pt; color: var(--fg-2); }
+p { margin: 0 0 8pt; color: var(--fg-2); }
+.lead { font-size: 11.5pt; line-height: 1.55; color: var(--fg); }
+strong { color: var(--fg); font-weight: 600; }
+a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--fg-3); }
+hr { border: 0; border-top: .6pt solid var(--rule); margin: 16pt 0; }
+
+/* ---------- sommaire ---------- */
+.toc { list-style: none; padding: 0; margin: 16pt 0 0; }
+.toc li { display: flex; align-items: baseline; padding: 7pt 0; border-bottom: .6pt solid var(--rule); font-size: 11pt; }
+.toc li .n { font-family: "Geist Mono"; color: var(--fg-3); width: 22pt; font-size: 9pt; }
+.toc li a { text-decoration: none; color: var(--fg); flex: 1; }
+.toc li a::after { content: target-counter(attr(href), page); float: right; font-family: "Geist Mono"; font-size: 9pt; color: var(--fg-3); }
+
+/* ---------- KPI ---------- */
+.kpis { display: flex; gap: 8pt; margin: 12pt 0 14pt; }
+.kpi { flex: 1; border: .6pt solid var(--rule); border-radius: 8pt; padding: 10pt 11pt; background: var(--bg); }
+.kpi .label { font-family: "Geist Mono"; font-size: 7pt; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-3); }
+.kpi .value { font-size: 22pt; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; margin-top: 4pt; color: var(--fg); }
+.kpi .value .unit { font-size: 11pt; font-weight: 500; color: var(--fg-3); }
+.kpi .delta { font-family: "Geist Mono"; font-size: 8pt; margin-top: 2pt; }
+.up { color: var(--positive); } .down { color: var(--negative); } .flat { color: var(--fg-3); }
+
+/* ---------- synthèse / encadrés ---------- */
+.synthesis { border-left: 2pt solid var(--fg); padding: 2pt 0 2pt 12pt; margin: 6pt 0 14pt; }
+.synthesis p { color: var(--fg); font-size: 10.5pt; }
+.callout { border: .6pt solid var(--rule); background: var(--bg-2); border-radius: 8pt; padding: 9pt 12pt; margin: 10pt 0; font-size: 9pt; color: var(--fg-2); }
+.callout strong { color: var(--fg); }
+.callout.warn { border-left: 2pt solid var(--warning); }
+.callout.ok { border-left: 2pt solid var(--positive); }
+
+/* ---------- actions ---------- */
+.action { border: .6pt solid var(--rule); border-radius: 8pt; padding: 10pt 12pt; margin-bottom: 8pt; }
+.action .head { display: flex; align-items: baseline; gap: 8pt; }
+.action .num { font-family: "Geist Mono"; font-size: 8.5pt; color: var(--fg-3); width: 18pt; }
+.action .title { font-weight: 600; font-size: 10.5pt; flex: 1; color: var(--fg); }
+.action .body { margin: 4pt 0 0 26pt; font-size: 9pt; color: var(--fg-2); }
+.action .body p { margin: 0 0 4pt; }
+.tags { margin: 6pt 0 0 26pt; }
+.badge { display: inline-block; font-family: "Geist Mono"; font-size: 6.8pt; letter-spacing: .08em; text-transform: uppercase; border: .6pt solid var(--rule); border-radius: 10pt; padding: 1.5pt 6pt; color: var(--fg-2); margin-right: 3pt; }
+.badge.done { border-color: var(--positive); color: var(--positive); }
+.badge.progress { border-color: var(--warning); color: var(--warning); }
+.badge.todo { color: var(--fg-3); }
+.badge.high { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* ---------- tableaux ---------- */
+table { width: 100%; border-collapse: collapse; margin: 8pt 0 12pt; font-size: 8.8pt; }
+th { text-align: left; font-family: "Geist Mono"; font-weight: 500; font-size: 7pt; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-3); border-bottom: .8pt solid var(--fg); padding: 5pt 6pt; }
+td { border-bottom: .6pt solid var(--rule); padding: 6pt; vertical-align: top; color: var(--fg-2); }
+td.num, th.num { text-align: right; font-family: "Geist Mono"; }
+td .before { color: var(--fg-3); text-decoration: line-through; }
+
+/* ---------- barres de score ---------- */
+.score-bar { display: flex; align-items: center; margin: 0 0 7pt; font-size: 9pt; }
+.score-bar .label { width: 48mm; color: var(--fg-2); }
+.score-bar .track { display: block; flex: 1; height: 5pt; background: var(--bg-2); border: .4pt solid var(--rule); border-radius: 3pt; margin: 0 8pt; position: relative; }
+.score-bar .fill { display: block; position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3pt; background: var(--fg); }
+.score-bar .fill.before { background: transparent; border-right: 1.4pt solid var(--negative); top: -2.5pt; bottom: -2.5pt; border-radius: 0; z-index: 2; }
+.score-bar .fill.after { z-index: 1; }
+.score-bar .val { width: 22mm; text-align: right; font-family: "Geist Mono"; font-size: 8.5pt; color: var(--fg); }
+.grade-A { color: var(--grade-a); } .grade-B { color: var(--grade-b); } .grade-C { color: var(--grade-c); }
+.grade-D { color: var(--grade-d); } .grade-E { color: var(--grade-e); } .grade-F { color: var(--grade-f); }
+
+/* ---------- code ---------- */
+pre, .code { font-family: "Geist Mono"; font-size: 7.8pt; line-height: 1.5; background: #0B0B0D; color: #D9DCE1; border-radius: 6pt; padding: 9pt 11pt; white-space: pre-wrap; word-wrap: break-word; page-break-inside: avoid; }
+
+/* ---------- 4e de couverture ---------- */
+.back { page: backcover; width: 210mm; height: 297mm; background: #050506; color: #F5F5F6; position: relative; overflow: hidden; }
+.back .art { position: absolute; left: 50%; top: 40mm; width: 120mm; height: 120mm; margin-left: -60mm; opacity: .9; }
+.back .art svg { width: 100%; height: 100%; }
+.back .content { position: absolute; left: 0; right: 0; top: 172mm; text-align: center; }
+.back .logo { font-weight: 600; font-size: 20pt; letter-spacing: -.03em; }
+.back .tagline { font-size: 15pt; color: #C9CCD1; margin: 10pt 0 22pt; letter-spacing: -.02em; }
+.back .contact { font-family: "Geist Mono"; font-size: 9.5pt; color: #A3A7AE; line-height: 1.9; }
+.back .legal { position: absolute; left: 0; right: 0; bottom: 16mm; text-align: center; font-family: "Geist Mono"; font-size: 6.8pt; color: #878B93; }
