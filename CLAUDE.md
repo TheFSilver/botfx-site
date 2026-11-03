@@ -7,7 +7,7 @@ Site vitrine botfx.fr. Statique, généré par `build.py` (gabarit commun + `src
 - **Zéro requête tierce, zéro cookie** : le test le vérifie. Polices auto-hébergées (`assets/fonts`). Pas de Google Fonts, pas d'analytics.
 - **Accessibilité WCAG 2.2 AA** : axe à 0 violation (réduit et plein mouvement), premier écran jamais semi-transparent au chargement, bouton pause des animations (WCAG 2.2.2) persistant.
 - **Liens affiliés** : `rel="sponsored"` + mention visible (loi 2023-451). Page `/outils/`.
-- **Mentions légales** : mention d'usage de l'IA (AI Act art. 50). Adresse = celle du registre (Lognes) tant que le changement d'adresse AE n'est pas fait.
+- **Mentions légales** : mention d'usage de l'IA (AI Act art. 50). Adresse = celle du registre : 960 avenue de la Résistance, 40990 Saint-Paul-lès-Dax (transfert validé INSEE le 30/10/2026, SIRET 53916294100030).
 - Le script inline du `<head>` est autorisé par hash dans la CSP (`_headers`, calculé par `build.py`) : si tu le modifies, rebuild.
 - Palette : noir #050506, argent (dégradé), blanc. Typo Geist / Geist Mono.
 

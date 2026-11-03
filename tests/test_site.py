@@ -108,8 +108,8 @@ with sync_playwright() as p:
     print("[mentions légales]")
     ctx, ml, *_ = open_page(b, "/mentions-legales/")
     t = main_text(ml)
-    for needle in ("François Dasylva", "Entrepreneur individuel", "53916294100022", "FR61539162941",
-                   "77185 Lognes", "06 50 04 31 16", "contact@botfx.fr", "Cloudflare"):
+    for needle in ("François Dasylva", "Entrepreneur individuel", "53916294100030", "FR61539162941",
+                   "40990 Saint-Paul-lès-Dax", "06 50 04 31 16", "contact@botfx.fr", "Cloudflare"):
         check(needle in t.replace(" ", " ").replace(" ", " "), f"mentions: {needle}")
     check("intelligence artificielle" in t.lower(), "mentions: AI usage disclosed")
     check("affili" in t.lower(), "mentions: affiliate links disclosed")

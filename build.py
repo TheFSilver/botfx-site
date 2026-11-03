@@ -35,7 +35,7 @@ JSONLD = {
     "image": SITE + "/assets/og.png",
     "description": "Sites sur mesure (HTML, CSS, JS) et SEO, web apps, PWA et SaaS, plugins et maintenance WordPress, automatisation (n8n, API) et IA appliquée pour indépendants et PME.",
     "areaServed": {"@type": "Country", "name": "France"},
-    "address": {"@type": "PostalAddress", "addressLocality": "Lognes", "postalCode": "77185", "addressCountry": "FR"},
+    "address": {"@type": "PostalAddress", "streetAddress": "960 avenue de la Résistance", "addressLocality": "Saint-Paul-lès-Dax", "postalCode": "40990", "addressCountry": "FR"},
     "founder": {"@type": "Person", "name": "François Dasylva", "jobTitle": "Développeur web indépendant — sites, web apps, WordPress, automatisation et IA"},
     "vatID": "FR61539162941",
     "sameAs": ["https://www.linkedin.com/in/francois-dasylva/", "https://github.com/TheFSilver"],
