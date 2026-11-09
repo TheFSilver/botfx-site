@@ -626,6 +626,40 @@ with sync_playwright() as p:
     check("\r\n" in v and all(len(l.encode()) <= 75 for l in v.split("\r\n")), "vcard lines folded at 75 bytes (CRLF)")
     check("/bni" not in _get("/sitemap.xml").read().decode(), "/bni stays out of the sitemap")
 
+    print("[le texte des pages suit le métier]")
+    import re as _re
+    NICHE_KEYS = ["artisan", "commerce", "restaurant", "sante", "cabinet", "agence", "formation", "immobilier"]
+    for path in ("/", "/services/", "/services/automatisation-n8n/", "/services/creation-site-sur-mesure/", "/services/web-app-pwa-saas/", "/services/wordpress-plugins-maintenance/", "/services/ia-agents-entreprise/", "/realisations/", "/realisations/automatisation-cabinet-de-paie/", "/realisations/application-pwa-infirmiers-liberaux/", "/realisations/automatisation-agence-web/", "/developpeur-web-dax-landes/"):
+        ctx, pg, *_ = open_page(b, path, viewport=VIEW)
+        total = int(pg.evaluate("document.documentElement.dataset.personalTargets || -1"))
+        missing = pg.evaluate("document.documentElement.dataset.personalMissing || ''")
+        check(total >= 2 and not missing, f"{path} every personalised text is found ({total}) {missing}")
+        base = main_text(pg)
+        seen = set()
+        for k in NICHE_KEYS:
+            pg.locator("[data-niche-select]").select_option(k)
+            txt = main_text(pg); seen.add(txt)
+            check("{" not in txt and "undefined" not in txt and txt != base, f"{path} {k}: text rewritten, no hole")
+            bad = _re.findall(r"\S {1,2}[:;!?»]", txt)
+            check(not bad, f"{path} {k}: French spacing {bad[:2]}")
+            fautes = _re.findall(r"\b(?:de|à) les (?:devis|stocks|factures|pièces|validations|émargements|annonces)\b", txt)
+            check(not fautes, f"{path} {k}: French contractions {fautes[:2]}")
+        check(len(seen) == len(NICHE_KEYS), f"{path} each trade reads differently")
+        pg.locator("[data-niche-select]").select_option("")
+        check(main_text(pg) == base, f"{path} no activity: original text restored")
+        ctx.close()
+    ctx, pg, *_ = open_page(b, "/", viewport=VIEW)
+    pg.locator("[data-niche-select]").select_option("sante")
+    lead = pg.locator(".hero .lede").inner_text()
+    check("paperasse" in lead and "soigner" in lead, f"home speaks to carers ({lead[:60]})")
+    check("patients" in pg.locator("#services").inner_text(), "service cards speak of patients")
+    for k, word in (("artisan", "MaPrimeRénov"), ("restaurant", "HACCP"), ("formation", "Qualiopi"), ("immobilier", "DPE"), ("cabinet", "facture électronique"), ("sante", "télétransmission"), ("commerce", "remboursements"), ("agence", "retours client")):
+        pg.locator("[data-niche-select]").select_option(k)
+        check(word in pg.locator(".hero .lede").inner_text(), f"{k}: the very first sentence uses the jargon ({word})")
+    pg.reload(wait_until="networkidle")
+    check("retours client" in pg.locator(".hero .lede").inner_text(), "the rewrite applies by itself on the next visit")
+    ctx.close()
+
     print("[calculateur]")
     ctx, pg, *_ = open_page(b, "/", viewport=VIEW)
     digits = lambda t: "".join(ch for ch in t if ch.isdigit())

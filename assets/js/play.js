@@ -558,7 +558,7 @@
     load(current);
     document.addEventListener('botfx:niche', () => {
       if (el.dataset.state === 'running') return;
-      const pref = niche() ? ids.indexOf(niche().scenario) : -1;
+      const pref = niche() ? ids.indexOf(niche().scenario) : 0;
       if (pref >= 0) {
         tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === pref)); t.tabIndex = k === pref ? 0 : -1; });
         panel.setAttribute('aria-labelledby', tabs[pref].id);
@@ -785,6 +785,114 @@
     render();
   }
 
+  /* ---------- le métier choisi réécrit les textes de la page (le HTML de base reste celui que lit Google) ---------- */
+  const WORDS = {
+    artisan: { client: 'vos clients', metier: 'vos chantiers', admin: 'vos devis du soir et vos papiers', x1: 'vos dossiers MaPrimeRénov\' et CEE', x2: 'vos situations de travaux', x3: 'votre attestation décennale', lieu: 'sur vos chantiers', doc: 'vos devis', outil: 'votre logiciel de devis', temps: 'être sur le chantier' },
+    commerce: { client: 'vos clients', metier: 'votre boutique', admin: 'vos stocks et vos commandes', x1: 'vos retours et remboursements', x2: 'votre rapprochement de caisse', x3: 'vos fiches produit', lieu: 'en boutique', doc: 'vos commandes', outil: 'votre caisse et votre boutique en ligne', temps: 'choisir vos produits' },
+    restaurant: { client: 'vos clients', metier: 'votre restaurant', admin: 'vos factures fournisseurs et vos plannings', x1: 'vos relevés HACCP', x2: 'votre food cost', x3: 'vos fiches allergènes', lieu: 'en salle', doc: 'vos réservations', outil: 'votre caisse et votre logiciel de réservation', temps: 'créer votre carte' },
+    sante: { client: 'vos patients', metier: 'vos soins', admin: 'la paperasse', x1: 'vos rejets de télétransmission', x2: 'vos feuilles de soins', x3: 'vos contrats de remplacement', lieu: 'à domicile ou au cabinet', doc: 'vos rendez-vous', outil: 'votre agenda et votre logiciel métier', temps: 'soigner' },
+    cabinet: { client: 'vos clients', metier: 'votre cabinet', admin: 'vos pièces jointes et vos relances', x1: 'la facture électronique', x2: 'vos lettres de mission', x3: 'vos échéances fiscales et sociales', lieu: 'au bureau', doc: 'vos dossiers', outil: 'votre logiciel métier', temps: 'conseiller' },
+    agence: { client: 'vos clients', metier: 'votre agence', admin: 'vos validations et vos factures', x1: 'vos retours client par mail', x2: 'vos comptes rendus de réunion', x3: 'vos reportings mensuels', lieu: 'en rendez-vous', doc: 'vos propositions', outil: 'vos outils de gestion de projet', temps: 'créer' },
+    formation: { client: 'vos stagiaires', metier: 'vos formations', admin: 'vos émargements et vos dossiers de financement', x1: 'vos preuves Qualiopi', x2: 'vos dossiers OPCO', x3: 'votre bilan pédagogique et financier', lieu: 'en session', doc: 'vos inscriptions', outil: 'votre plateforme de formation', temps: 'transmettre' },
+    immobilier: { client: 'vos acquéreurs', metier: 'votre agence immobilière', admin: 'vos annonces et vos relances', x1: 'vos diagnostics DPE', x2: 'vos comptes rendus de visite', x3: 'la diffusion de vos annonces', lieu: 'sur le terrain', doc: 'vos mandats', outil: 'votre logiciel de transaction', temps: 'vendre' },
+  };
+  const COLS = (n) => `.columns .card:nth-child(${n}) p`;
+  const PERSONAL = {
+    '*': [['.cta-sign', 'Votre équipe passe ses journées sur {admin}. Je construis la machine. Et je reste pour l\'amélioration continue.']],
+    '/': [
+      ['.hero .lede', 'Je conçois, je code et je maintiens les outils qui vous libèrent de {admin} et de {x1} : <strong>sites sur mesure</strong>, <strong>web apps et SaaS</strong>, <strong>WordPress</strong>, <strong>automatisations</strong> et <strong>IA appliquée</strong>. Vous, vous continuez à {temps}.'],
+      ['#services .sec-head > p', 'Du site au SaaS, une seule personne s\'occupe de tout ce qui tourne autour de {metier}.'],
+      ['#services .offers article:nth-child(1) > p:not(.num)', 'Un espace pour {client}, une application pour {metier}, un abonnement si besoin : conçus, codés, déployés et maintenus par une seule personne.'],
+      ['#services .offers article:nth-child(2) > p:not(.num)', 'Un site rapide qui parle à {client} et qui se fait trouver sur Google comme dans les réponses des IA.'],
+      ['#services .offers article:nth-child(3) > p:not(.num)', 'Extensions sur mesure et maintenance suivie : votre site reste à jour pendant que vous êtes {lieu}.'],
+      ['#services .offers article:nth-child(4) > p:not(.num)', 'Je relie {outil} au reste : {x1}, {x2} et les relances avancent sans ressaisie.'],
+      ['#services .offers article:nth-child(5) > p:not(.num)', 'Trier les demandes de {client}, retrouver {x3} en une question, préparer une réponse : de l\'IA dans votre quotidien, avec des garde-fous.'],
+      ['[data-circle-step]:nth-child(1) p', 'On part de votre semaine réelle {lieu}. Ce qui se répète, ce qui se perd, ce qui ne dépend que de vous.'],
+      ['[data-circle-step]:nth-child(2) p', 'Pas un grand plan. Une tâche précise, comme {x2}, branchée de bout en bout, testée, livrée vite.'],
+      ['[data-circle-step]:nth-child(3) p', 'La tâche ne revient plus. Ce temps est à vous pour {temps}, chaque semaine, sans recruter.'],
+      ['[data-circle-step]:nth-child(4) p', 'Ce qui concerne {client} est saisi une fois, au bon endroit, sans erreur de recopie.'],
+      ['[data-circle-step]:nth-child(5) p', 'Vous voyez enfin où en sont {doc} et {x1}. L\'IA peut s\'y brancher et travailler sur du concret.'],
+      ['[data-circle-step]:nth-child(6) p', 'Le temps gagné sert à attaquer la tâche suivante, loin de {admin}. Le cercle repart, plus vite à chaque tour.'],
+      ['#machine .sec-head > p', 'Voici à quoi ressemble une automatisation pour {metier}. Lancez-la, déplacez les blocs, coupez une étape et regardez ce qui se passe.'],
+      ['#demain .sec-head > p', 'Le futur de votre entreprise ne commence pas par un plan à cinq ans. Il commence par moins de temps sur {admin}, puis encore moins.'],
+      ['#jeu .sec-head > p', 'Elles tombent, vous cliquez. Ce sont {admin} : attrapez le pilote automatique pour tout effacer. Au clavier, la barre d\'espace supprime la plus basse.'],
+      ['#calcul .sec-head > p', 'Quatre curseurs, vos chiffres, pour le temps que vous passez sur {admin} et {x2}. Rien n\'est envoyé tant que vous ne m\'écrivez pas.'],
+      ['#realisations .sec-head > p', 'Trois projets récents, racontés sans nom de client. La même logique s\'applique à {metier} : ce qui compte, c\'est ce que la machine fait à votre place.'],
+      ['.steps .step:nth-child(1) p:last-child', 'Un échange pour comprendre comment ça se passe {lieu} et repérer ce qui vous coûte du temps, de {x1} à {x3}.'],
+      ['.steps .step:nth-child(2) p:last-child', 'Des livraisons courtes et testées autour de {doc}, que vous validez au fur et à mesure.'],
+      ['.steps .step:nth-child(3) p:last-child', 'Maintenance, évolutions et documentation : vous restez maître de vos outils, et vous continuez à {temps}.'],
+    ],
+    '/services/': [
+      ['.hero .lede', 'La personne qui écoute ce qui coince autour de {metier} est celle qui conçoit, code, déploie et maintient.'],
+      ['.offers article:nth-child(1) > p:not(.num)', 'Je relie {outil} au reste pour que les données circulent seules et que vos équipes arrêtent de recopier.'],
+      ['.offers article:nth-child(2) > p:not(.num)', 'Trier les demandes de {client}, retrouver une information, préparer une réponse, avec des garde-fous.'],
+      ['.offers article:nth-child(3) > p:not(.num)', 'Une application pour {client} ou pour votre équipe {lieu}, installable sur téléphone.'],
+      ['.offers article:nth-child(4) > p:not(.num)', 'Un site rapide qui parle à {client}, trouvé par Google et cité par les IA.'],
+      ['.offers article:nth-child(5) > p:not(.num)', 'Extensions propres et maintenance suivie pendant que vous êtes {lieu}.'],
+    ],
+    '/services/automatisation-n8n/': [
+      ['.hero .lede', 'Entre {admin} et {x1}, vos journées filent. Je relie {outil} par API et n8n pour que les données circulent seules, et que vous puissiez {temps}.'],
+      [COLS(1), 'Les retards de paiement de {client} sont détectés, vérifiés et relancés au bon ton. Vous n\'êtes prévenu que s\'ils ne répondent pas.'],
+      [COLS(2), 'Formulaires, dépôt de documents, relances limitées à ce qui manque et signature en ligne, pour {doc} comme pour {x2}.'],
+      [COLS(3), 'Une demande de {client} devient une fiche sans doublon et une notification. Elle ne dort plus dans une boîte mail.'],
+      [COLS(4), 'Vos chiffres sur {doc} et {x3} consolidés et envoyés chaque semaine, sans export ni copier-coller.'],
+      [COLS(5), 'Entre {outil}, la comptabilité et la messagerie, ce qui est saisi une fois arrive partout.'],
+      [COLS(6), 'Une échéance, une anomalie, un blocage sur {doc} : vous êtes prévenu avant que cela devienne un problème.'],
+    ],
+    '/services/creation-site-sur-mesure/': [
+      ['.hero .lede', 'Un site qui parle à {client} : codé à la main, rapide, accessible, conçu pour être trouvé sur Google et cité par les IA.'],
+      [COLS(1), 'Pas de constructeur, pas d\'extensions empilées : la page s\'affiche avant que {client} hésitent.'],
+      [COLS(2), 'Structure propre, pages par service et par zone : le socle pour que {client} vous trouvent sur Google.'],
+      [COLS(3), 'Contenus citables et questions-réponses : quand {client} interrogent ChatGPT ou Perplexity, vos pages sont prêtes.'],
+      [COLS(4), 'Navigation au clavier, contrastes, animations en pause : tous {client} peuvent vous lire.'],
+      [COLS(5), 'Sans outil tiers, pas de bandeau cookies à imposer à {client}.'],
+      [COLS(6), 'Simulateur, calculateur, démonstration : un site peut faire découvrir ce que vous faites pour {client} au lieu de le décrire.'],
+    ],
+    '/services/web-app-pwa-saas/': [
+      ['.hero .lede', 'Une application pour {client} ou pour votre équipe {lieu} : installable, utilisable sans réseau, conçue, codée et maintenue par la même personne.'],
+      [COLS(1), 'Une application sur l\'écran d\'accueil, sans passer par les stores, qui fonctionne même {lieu} sans réseau.'],
+      [COLS(2), 'Dépôt de documents, signature, suivi : {client} avancent seuls et vous gardez la vue d\'ensemble.'],
+      [COLS(3), 'Comptes, paiements récurrents, essais, factures : le produit encaisse pendant que vous êtes {lieu}.'],
+      [COLS(4), 'Les règles autour de {x1} et de {x2}, transformées en parcours guidé que vos équipes suivent sans erreur.'],
+      [COLS(5), 'Vous publiez vos contenus et gérez les accès de {client} sans dépendre d\'un développeur.'],
+      [COLS(6), 'Audit, limitation des abus, données minimales : ce qui n\'est pas collecté sur {client} ne peut pas fuiter.'],
+    ],
+    '/services/wordpress-plugins-maintenance/': [
+      ['.hero .lede', 'Votre site reste à jour et en sécurité pendant que vous êtes {lieu}. Extensions sur mesure, maintenance suivie, compte rendu lisible.'],
+      [COLS(1), 'Une fonction précise autour de {doc}, codée proprement, à la place de trois extensions qui se marchent dessus.'],
+      [COLS(2), 'Les formulaires remplis par {client} arrivent directement dans {outil}.'],
+      [COLS(3), 'Sauvegarde avant chaque opération, contrôle des pages où passent {client}, retour arrière possible.'],
+      [COLS(4), 'Comptes, droits, extensions abandonnées : on ferme les portes avant qu\'on les force, pendant que vous êtes {lieu}.'],
+      [COLS(5), 'Cache, images, extensions inutiles : un site plus léger pour {client}.'],
+      [COLS(6), 'Balises, données structurées, pages orphelines : surveillées dans le temps pour que {client} vous trouvent.'],
+    ],
+    '/services/ia-agents-entreprise/': [
+      ['.hero .lede', 'Une IA branchée sur {metier}, avec des garde-fous : elle retrouve {x3}, prépare {x2}, et vous décidez.'],
+      [COLS(1), 'Vos documents sur {doc} et {x1} interrogés en langage naturel, avec la source citée à chaque réponse.'],
+      [COLS(2), 'Les messages de {client} sont classés, résumés et routés avec un brouillon de réponse.'],
+      [COLS(3), 'Factures et formulaires liés à {doc} : les données utiles sont lues et saisies au bon endroit.'],
+      [COLS(4), 'Une suite d\'actions confiée à l\'IA autour de {doc}, dans un périmètre strict, avec validation humaine.'],
+      [COLS(5), 'Réponses à {client}, comptes rendus, courriers types : dans votre ton et à partir de vos contenus.'],
+      [COLS(6), 'Une question, une réponse tirée de vos données, sans ouvrir {outil} pour la trouver.'],
+    ],
+    '/realisations/automatisation-cabinet-de-paie/': [['.sec-head > p', 'Scénario simplifié, avec des données fictives. Transposez-le à {metier} : coupez une étape pour voir ce qu\'elle vous éviterait sur {x1}.']],
+    '/realisations/application-pwa-infirmiers-liberaux/': [['.phone-grid .lede', 'Une PWA n\'a pas besoin de connexion pour rester utile, même {lieu}. Passez en mode avion, répondez aux questions : le résultat se calcule sur l\'appareil.']],
+    '/realisations/automatisation-agence-web/': [['.sec-head > p', 'Scénarios simplifiés, avec des données fictives. Imaginez-les pour {metier} : glissez de l\'avant à l\'après, puis coupez une étape pour voir ce qu\'elle vous éviterait sur {x2}.']],
+    '/realisations/': [['.hero .lede', 'Ces projets sont racontés sans nom de client. La même logique vaut pour {metier} : quelle tâche disparaît, et comment.']],
+    '/developpeur-web-dax-landes/': [['.hero .lede', 'Basé à Saint-Paul-lès-Dax, je construis les outils numériques qui libèrent les pros comme vous de {admin} et de {x1}, dans les Landes et partout en France.']],
+  };
+  const personalTargets = [...PERSONAL['*'], ...(PERSONAL[location.pathname] || [])]
+    .map(([sel, tpl]) => ({ sel, tpl, el: $(sel) }));
+  /* la phrase de fin n'existe pas sur toutes les pages : on ne garde que les cibles présentes, sauf celles propres à la page */
+  const pageSpecific = new Set((PERSONAL[location.pathname] || []).map(([sel]) => sel));
+  root.dataset.personalMissing = personalTargets.filter((t) => !t.el && pageSpecific.has(t.sel)).map((t) => t.sel).join(' | ');
+  const livePersonal = personalTargets.filter((t) => t.el);
+  root.dataset.personalTargets = livePersonal.length;
+  livePersonal.forEach((t) => { t.base = t.el.innerHTML; });
+  const renderPersonal = () => livePersonal.forEach((t) => {
+    t.el.innerHTML = nicheKey ? nb(t.tpl.replace(/\{(\w+)\}/g, (_, k) => WORDS[nicheKey][k])) : t.base;
+  });
+
   /* ---------- sélecteurs d'activité (hero + journée) et cockpit ---------- */
   const selects = $$('[data-niche-select]');
   selects.forEach((sel) => {
@@ -872,6 +980,7 @@
   });
   document.addEventListener('botfx:niche', syncNiche);
   document.addEventListener('botfx:niche', renderMails);
+  document.addEventListener('botfx:niche', renderPersonal);
   renderMails();
   if (nicheKey) document.dispatchEvent(new CustomEvent('botfx:niche')); else syncNiche();
 })();
