@@ -359,6 +359,7 @@ with sync_playwright() as p:
     ctx, pg, *_ = open_page(b, "/realisations/automatisation-agence-web/", viewport=VIEW)
     txt = main_text(pg).lower()
     check("service rh" in txt, "agency case tells the recruitment funnel")
+    check("quatre ans" not in pg.content().lower(), "agency case does not state how long")
     check("nouveaux employés" in txt and "documents d'embauche" in txt.replace("\u2019", "'"), "agency case tells employee onboarding")
     check(not any(w in txt for w in ("notation", "noté", "scoring")), "no CV scoring on the agency case")
     check("amélioration continue" in txt, "the signature line closes the agency case")
