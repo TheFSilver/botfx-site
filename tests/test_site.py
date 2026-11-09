@@ -605,6 +605,27 @@ with sync_playwright() as p:
     check(pg.locator("[data-niche-select]").input_value() == "" and "Source citée" in pg.locator("[data-ticker]").inner_text(), "no activity chosen: tasks of the page only")
     ctx.close()
 
+    print("[/bni : carte de visite]")
+    import urllib.request as _ur
+    _get = lambda u: _ur.urlopen(_ur.Request(BASE + u, headers=UA))
+    html_bni = _get("/bni/").read().decode()
+    check('content="noindex"' in html_bni, "/bni is not indexed")
+    ctx = b.new_context(viewport=VIEW, accept_downloads=True); pg = ctx.new_page()
+    got = []
+    pg.on("download", lambda d: got.append(d.suggested_filename))
+    pg.goto(BASE + "/bni/", wait_until="load"); pg.wait_for_timeout(6000)
+    check(got and got[0].endswith(".vcf"), f"/bni hands over the contact card by itself {got}")
+    check(pg.url.rstrip("/") == BASE.rstrip("/"), f"/bni then returns to the home page ({pg.url})")
+    ctx.close()
+    check('href="/bni/francois-dasylva.vcf"' in html_bni, "/bni keeps a manual button")
+    r = _get("/bni/francois-dasylva.vcf")
+    check("vcard" in r.headers.get("Content-Type", "").lower(), f"vcard content type ({r.headers.get('Content-Type')})")
+    v = r.read().decode()
+    for needle in ("BEGIN:VCARD", "VERSION:3.0", "FN:François Dasylva", "ORG:BotFx", "TEL;TYPE=CELL,VOICE:+33607213614", "EMAIL;TYPE=WORK,INTERNET:francois@botfx.fr", "URL:https://botfx.fr", "linkedin.com/in/francois-dasylva", "PHOTO;ENCODING=b;TYPE=PNG:", "END:VCARD"):
+        check(needle in v, f"vcard has {needle[:30]}")
+    check("\r\n" in v and all(len(l.encode()) <= 75 for l in v.split("\r\n")), "vcard lines folded at 75 bytes (CRLF)")
+    check("/bni" not in _get("/sitemap.xml").read().decode(), "/bni stays out of the sitemap")
+
     print("[calculateur]")
     ctx, pg, *_ = open_page(b, "/", viewport=VIEW)
     digits = lambda t: "".join(ch for ch in t if ch.isdigit())

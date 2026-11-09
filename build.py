@@ -145,6 +145,7 @@ def page_html(meta, main, home=False):
     play_css = f'<link rel="stylesheet" href="{asset("assets/css/play.css")}">' if "data-play" in main else ""
     play_js = f'<script src="{asset("assets/js/play.js")}" defer></script>' if "data-play" in main else ""
     robots = '<meta name="robots" content="noindex">' if meta.get("noindex") else ""
+    extra_js = f'<script src="{asset("assets/js/" + meta["script"] + ".js")}" defer></script>' if meta.get("script") else ""
     return f"""<!doctype html>
 <html lang="fr">
 <head>
@@ -204,6 +205,7 @@ def page_html(meta, main, home=False):
 </footer>
 <script src="{asset('assets/js/site.js')}" defer></script>
 {play_js}
+{extra_js}
 </body>
 </html>
 """
@@ -213,6 +215,28 @@ def parse(src):
     m = re.match(r"\s*<!--(.*?)-->(.*)", src, re.S)
     meta = dict(line.split(":", 1) for line in m.group(1).strip().splitlines())
     return {k.strip(): v.strip() for k, v in meta.items()}, m.group(2).strip()
+
+
+def fold(line):
+    """Pliage vCard : 75 octets maximum par ligne, suite préfixée d'une espace."""
+    raw, out, first = line.encode(), [], True
+    while raw:
+        size = 75 if first else 74
+        while size < len(raw) and (raw[size] & 0xC0) == 0x80:
+            size -= 1
+        out.append((b"" if first else b" ") + raw[:size])
+        raw, first = raw[size:], False
+    return b"\r\n".join(out).decode()
+
+
+def vcard():
+    photo = __import__("base64").b64encode((ROOT / "assets/apple-touch-icon.png").read_bytes()).decode()
+    lines = ["BEGIN:VCARD", "VERSION:3.0", "N:Dasylva;François;;;", "FN:François Dasylva", "ORG:BotFx",
+             "TITLE:Développeur web\\, automatisation et IA", "TEL;TYPE=CELL,VOICE:+33607213614",
+             "EMAIL;TYPE=WORK,INTERNET:francois@botfx.fr", "URL:https://botfx.fr",
+             "X-SOCIALPROFILE;TYPE=linkedin:https://www.linkedin.com/in/francois-dasylva/",
+             f"PHOTO;ENCODING=b;TYPE=PNG:{photo}", "END:VCARD"]
+    return "\r\n".join(fold(l) for l in lines) + "\r\n"
 
 
 def main():
@@ -230,6 +254,7 @@ def main():
             urls.append((SITE + meta["path"], last_modified(src)))
             llms.append(f"- [{meta['title']}]({SITE + meta['path']}) : {meta['description']}")
         print("built", out.relative_to(DIST))
+    (DIST / "bni" / "francois-dasylva.vcf").write_bytes(vcard().encode())
     (DIST / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + "".join(f"  <url><loc>{u}</loc><lastmod>{d}</lastmod></url>\n" for u, d in urls) + "</urlset>\n")
@@ -247,6 +272,10 @@ def main():
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
   Cross-Origin-Opener-Policy: same-origin
+
+/bni/francois-dasylva.vcf
+  Content-Type: text/vcard; charset=utf-8
+  Cache-Control: public, max-age=3600, must-revalidate
 
 /assets/fonts/*
   Cache-Control: public, max-age=31536000, immutable
