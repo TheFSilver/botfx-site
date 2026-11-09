@@ -65,6 +65,11 @@ FOOT_MAP = [
 ]
 
 
+def asset(rel):
+    """URL versionnée : chaque build change l'adresse des fichiers modifiés, aucun navigateur ne garde l'ancienne version."""
+    return f"/{rel}?v={hashlib.sha256((DIST / rel).read_bytes()).hexdigest()[:10]}"
+
+
 def typo(fragment):
     """Espaces insécables du français, seulement dans le texte (jamais dans les balises)."""
     def fix(m):
@@ -137,8 +142,8 @@ def page_html(meta, main, home=False):
     foot_map = "".join(f'<a href="{h}">{l}</a>' for h, l in FOOT_MAP)
     ld = jsonld_blocks(meta, main, home)
     main = typo(main.replace("{{crumbs}}", crumbs_html(meta)))
-    play_css = '<link rel="stylesheet" href="/assets/css/play.css">' if "data-play" in main else ""
-    play_js = '<script src="/assets/js/play.js" defer></script>' if "data-play" in main else ""
+    play_css = f'<link rel="stylesheet" href="{asset("assets/css/play.css")}">' if "data-play" in main else ""
+    play_js = f'<script src="{asset("assets/js/play.js")}" defer></script>' if "data-play" in main else ""
     robots = '<meta name="robots" content="noindex">' if meta.get("noindex") else ""
     return f"""<!doctype html>
 <html lang="fr">
@@ -165,7 +170,7 @@ def page_html(meta, main, home=False):
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="{asset('assets/css/site.css')}">
 {play_css}
 <script>{BOOT}</script>
 {ld}
@@ -197,7 +202,7 @@ def page_html(meta, main, home=False):
     </nav>
   </div>
 </footer>
-<script src="/assets/js/site.js" defer></script>
+<script src="{asset('assets/js/site.js')}" defer></script>
 {play_js}
 </body>
 </html>

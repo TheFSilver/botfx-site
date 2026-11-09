@@ -168,6 +168,7 @@
   });
 
   /* ---------- hero : sphère de points argentés, manipulable ---------- */
+  let sphere = null;
   const canvas = document.querySelector('[data-hero-canvas]');
   if (canvas && canvas.getContext) {
     const ctx = canvas.getContext('2d');
@@ -182,7 +183,7 @@
     }
     let W = 0, H = 0, dpr = 1, t = 0, raf = 0, visible = true, frames = 0;
     let tx = 0, ty = 0, mx = 0, my = 0;
-    let order = 1, target = 1, spin = 0, vel = 0, pitch = 0;
+    let order = 0, target = 0, spin = 0, vel = 0, pitch = 0;
     let R = 0, cx = 0, cy = 0, pulsesSent = 0;
     let px0 = -9999, py0 = -9999, drag = null;
     const pulses = [];
@@ -291,61 +292,97 @@
     addEventListener('resize', resize);
     resize(); run();
 
-    /* ---------- pilote automatique : la sphère se défait, les tâches s'accumulent ---------- */
-    const sw = document.querySelector('[data-autopilot]');
-    const backlogEl = document.querySelector('[data-backlog]');
-    const lines = [...document.querySelectorAll('[data-ticker] li')];
-    if (sw && backlogEl) {
-      let on = true, backlog = 0, cursor = 0;
-      const paint = () => {
-        backlogEl.textContent = `${backlog} tâche${backlog > 1 ? 's' : ''} en attente`;
-        hero.classList.toggle('is-off', !on);
-      };
-      const setLines = () => lines.forEach((l, i) => l.classList.toggle('done', on && (isReduced() || i <= cursor)));
-      sw.addEventListener('click', () => {
-        on = !on; target = on ? 1 : 0;
-        sw.setAttribute('aria-checked', String(on));
-        if (isReduced()) { order = target; backlog = on ? 0 : 12; draw(); }
-        setLines(); paint();
-      });
-      setInterval(() => {
-        if (isReduced() || document.hidden) return;
-        if (on) { backlog = Math.max(0, backlog - 8); cursor = (cursor + 1) % (lines.length + 1); if (cursor === 0) cursor = 0; }
-        else backlog += 2;
-        setLines(); paint();
-      }, 900);
-      onMotionChange(() => { setLines(); paint(); });
-      setLines(); paint();
-    }
+    sphere = { set: (v) => { target = v ? 1 : 0; if (isReduced()) { order = target; draw(); } } };
   }
 
-  /* ---------- fond vivant : des points argentés qui se recomposent selon la section ---------- */
+  /* ---------- pilote automatique : les tâches s'accumulent ou se font seules (toutes les pages) ---------- */
+  const autoSw = document.querySelector('[data-autopilot]');
+  const backlogEl = document.querySelector('[data-backlog]');
+  const lines = [...document.querySelectorAll('[data-ticker] li')];
+  if (autoSw && backlogEl) {
+    const scene = document.querySelector('.hero');
+    let on = autoSw.getAttribute('aria-checked') === 'true', backlog = !on && isReduced() ? 12 : 0, cursor = 0;
+    const paint = () => {
+      backlogEl.textContent = `${backlog} tâche${backlog > 1 ? 's' : ''} en attente`;
+      if (scene) scene.classList.toggle('is-off', !on);
+    };
+    const setLines = () => lines.forEach((l, i) => {
+      l.classList.toggle('done', on && (isReduced() || i <= cursor));
+      l.classList.toggle('failed', !on && (isReduced() || i < cursor));
+    });
+    autoSw.addEventListener('click', () => {
+      on = !on; cursor = 0;
+      autoSw.setAttribute('aria-checked', String(on));
+      if (sphere) sphere.set(on);
+      if (isReduced()) backlog = on ? 0 : 12;
+      setLines(); paint();
+    });
+    setInterval(() => {
+      if (isReduced() || document.hidden) return;
+      if (on) backlog = Math.max(0, Math.ceil(backlog * 0.5) - 4);
+      else backlog = Math.min(99, backlog + 2);
+      cursor = (cursor + 1) % (lines.length + 1);
+      setLines(); paint();
+    }, 900);
+    onMotionChange(() => { setLines(); paint(); });
+    setLines(); paint();
+  }
+
+  /* ---------- fond : seulement là où il illustre la section ----------
+     cercle = orbites · machine = réseau qui se connecte avec le curseur · demain = du chaos à l'ordre
+     calculateur, méthode, FAQ = étoiles · réalisations = 3 lignes · contact = la boule du hero.
+     Pour la boule, chaque point se divise ; il se referme en remontant : rien ne se perd. */
   (() => {
     const c = document.createElement('canvas');
     c.className = 'bg-field'; c.dataset.bgCanvas = ''; c.setAttribute('aria-hidden', 'true');
     document.body.prepend(c);
     const x = c.getContext('2d');
-    const hero = document.querySelector('.hero');
-    const SHAPES = { services: 'grid', cercle: 'orbit', machine: 'network', demain: 'wave', jeu: 'rain', calcul: 'grid', realisations: 'network', methode: 'wave', faq: 'orbit', contact: 'sphere' };
-    const CYCLE = ['network', 'grid', 'wave', 'orbit'];
-    const N = innerWidth < 700 ? 120 : 230;
+    const N = innerWidth < 700 ? 120 : 230, M = N * 4;
     const golden = Math.PI * (3 - Math.sqrt(5));
-    const P = Array.from({ length: N }, (_, i) => {
-      const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = golden * i;
-      return { rx: Math.random(), ry: Math.random(), s: Math.random(), sx: Math.cos(th) * r, sy: y, sz: Math.sin(th) * r, x: 0, y: 0 };
+    const P = Array.from({ length: M }, (_, i) => {
+      const y = 1 - (i / (M - 1)) * 2, r = Math.sqrt(1 - y * y), th = golden * i;
+      return { rx: Math.random(), ry: Math.random(), s: Math.random(), sx: Math.cos(th) * r, sy: y, sz: Math.sin(th) * r, x: 0, y: 0, depth: 0, persp: 1, parent: i < N ? null : i % N };
     });
-    let W = 0, H = 0, t = 0, raf = 0, frames = 0, alpha = 0, shape = 'network', net = 0, orb = 0, wav = 0, edges = [], px = -9999, py = -9999, pending = false, placed = false;
+    let W = 0, H = 0, t = 0, raf = 0, frames = 0, alpha = 0, shape = 'stars', net = 0, orb = 0, wav = 0, sph = 0, drive = 0, edges = [], px = -9999, py = -9999, pending = false, placed = false, area = null, morphAt = -1e9;
+    const DUR = 1500, STAGGER = 700;
+    /* les anneaux suivent la roue du cercle vertueux, chacun à sa vitesse */
+    const RING_RATE = [1, 0.78, 0.58, 0.4], wheel = document.querySelector('[data-circle]');
+    let orbitRot = 0;
     const pulses = Array.from({ length: 6 }, () => ({ e: 0, k: Math.random() }));
+    const isBall = (name) => name === 'sphere';
+    const ball = (p, kx, kr) => {
+      const a = t * 0.12, b = 0.32, sa = Math.sin(a), ca = Math.cos(a), sb = Math.sin(b), cb = Math.cos(b), R = Math.min(W, H) * kr;
+      const x1 = p.sx * ca - p.sz * sa, z1 = p.sx * sa + p.sz * ca, y1 = p.sy * cb - z1 * sb, z2 = p.sy * sb + z1 * cb;
+      p.persp = 2.6 / (2.6 + z2); p.depth = Math.max(0, Math.min(1, (1 - z2) * 0.5));
+      return [W * kx + x1 * R * p.persp, H * 0.5 + y1 * R * p.persp];
+    };
     const targets = {
-      grid: (p, i) => { const cols = Math.ceil(Math.sqrt(N * W / H)), cell = W / cols; return [(i % cols + 0.5) * cell, (Math.floor(i / cols) + 0.5) * cell - (scrollY * 0.04) % cell]; },
-      orbit: (p, i) => { const ring = i % 4, R = (0.2 + ring * 0.15) * Math.min(W, H), a = i * golden + t * (ring % 2 ? 0.07 : -0.05); return [W * 0.5 + Math.cos(a) * R * 1.25, H * 0.5 + Math.sin(a) * R]; },
+      orbit: (p, i) => {
+        const ring = i % 4, R = (0.2 + ring * 0.15) * Math.min(W, H), a = i * golden + t * (ring % 2 ? 0.07 : -0.05);
+        const ex = Math.cos(a) * R * 1.25, ey = Math.sin(a) * R, w = orbitRot * RING_RATE[ring], cw = Math.cos(w), sw = Math.sin(w);
+        return [W * 0.5 + ex * cw - ey * sw, H * 0.5 + ex * sw + ey * cw];
+      },
       network: (p) => [p.rx * W + Math.sin(t * 0.3 + p.s * 9) * 10, p.ry * H + Math.cos(t * 0.26 + p.s * 7) * 10],
+      stars: (p) => [p.rx * W + Math.sin(t * 0.2 + p.s * 9) * 7, p.ry * H + Math.cos(t * 0.17 + p.s * 7) * 7],
       wave: (p, i) => { const k = i / N, band = i % 3; return [k * W, H * (0.5 + 0.2 * Math.sin(k * 7 + t * 0.5 + band * 0.9)) + (band - 1) * 34]; },
-      rain: (p) => [p.rx * W, ((p.ry * H * 1.25 + t * 34 * (0.6 + p.s)) % (H * 1.25)) - H * 0.12],
-      sphere: (p) => { const a = t * 0.1, ca = Math.cos(a), sa = Math.sin(a), R = Math.min(W, H) * 0.42, xr = p.sx * ca - p.sz * sa; return [W * 0.5 + xr * R, H * 0.5 + p.sy * R]; },
+      sphere: (p) => ball(p, 0.5, 0.42),
+      ordo: (p, i) => {
+        const cols = Math.ceil(Math.sqrt(N * W / H)), cell = W / cols, gx = (i % cols + 0.5) * cell, gy = (Math.floor(i / cols) + 0.5) * cell;
+        const cx = p.rx * W + Math.sin(t * 0.5 + p.s * 9) * 18 * (1 - drive), cy = p.ry * H + Math.cos(t * 0.42 + p.s * 7) * 18 * (1 - drive);
+        return [cx + (gx - cx) * drive, cy + (gy - cy) * drive];
+      },
+    };
+    const shapeOf = (el) => {
+      if (!el) return null;
+      if (el.dataset.bg) return el.dataset.bg;
+      if (el.querySelector(':scope > .prose-wide')) return 'stars';
+      if (el.matches('[data-circle]')) return 'orbit';
+      if (el.id === 'machine') return 'network';
+      if (el.matches('[data-future]')) return 'ordo';
+      return null;
     };
     const linkEdges = () => {
-      const pts = P.map((p) => [p.rx * W, p.ry * H]);
+      const pts = P.slice(0, N).map((p) => [p.rx * W, p.ry * H]);
       edges = [];
       pts.forEach((a, i) => {
         pts.map((b, j) => [(a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2, j]).filter((d) => d[1] !== i).sort((m, n) => m[0] - n[0]).slice(0, 2).forEach((d) => edges.push([i, d[1]]));
@@ -358,26 +395,49 @@
       x.setTransform(dpr, 0, 0, dpr, 0, 0);
       linkEdges();
     };
+    const readDrive = () => {
+      const input = area && area.querySelector('[data-machine-mix], [data-future] input, :scope input[type=range]');
+      drive = input ? +input.value / 100 : 1;
+      c.dataset.drive = drive.toFixed(2);
+    };
     const sense = () => {
       pending = false;
-      alpha = hero ? Math.min(1, Math.max(0, (scrollY - H * 0.35) / (H * 0.5))) : 1;
-      c.style.opacity = alpha.toFixed(3); c.dataset.alpha = alpha.toFixed(3);
-      const sections = [...document.querySelectorAll('main section, main .page')];
-      const here = sections.find((s) => { const r = s.getBoundingClientRect(); return r.top <= H * 0.5 && r.bottom > H * 0.5; });
-      if (here) shape = SHAPES[here.id] || CYCLE[sections.indexOf(here) % CYCLE.length];
-      c.dataset.formation = shape;
+      const here = [...document.querySelectorAll('main section, main .page')].find((s) => { const r = s.getBoundingClientRect(); return r.top <= H * 0.5 && r.bottom > H * 0.5; });
+      const found = shapeOf(here);
+      alpha = found ? 1 : 0;
+      if (found && found !== shape && placed && !isReduced()) {
+        morphAt = performance.now();
+        P.forEach((p) => { p.fx = p.x; p.fy = p.y; });
+      }
+      if (found) { shape = found; area = here; }
+      c.style.opacity = alpha; c.dataset.alpha = alpha; c.dataset.formation = found || 'none';
+      readDrive();
       if (isReduced()) still();
     };
     function step(snap) {
-      const f = targets[shape];
-      const ease = snap ? 1 : 0.05;
+      orbitRot = wheel ? +wheel.dataset.angle || 0 : 0;
+      c.dataset.orbitRot = orbitRot.toFixed(3);
+      const f = targets[shape], ease = snap ? 1 : 0.05;
       net += ((shape === 'network' ? 1 : 0) - net) * ease;
       orb += ((shape === 'orbit' ? 1 : 0) - orb) * ease;
       wav += ((shape === 'wave' ? 1 : 0) - wav) * ease;
+      sph += ((isBall(shape) ? 1 : 0) - sph) * ease;
+      const now = performance.now();
+      let progress = 1;
       P.forEach((p, i) => {
-        const [tx, ty] = f(p, i);
-        if (snap || !placed || (shape === 'rain' && ty < p.y - H * 0.5)) { p.x = tx; p.y = ty; } else { p.x += (tx - p.x) * 0.055; p.y += (ty - p.y) * 0.055; }
+        /* hors de la boule, un point secondaire rejoint celui dont il est né */
+        const [tx, ty] = p.parent !== null && !isBall(shape) ? [P[p.parent].x, P[p.parent].y] : f(p, i);
+        if (snap || !placed) { p.x = tx; p.y = ty; return; }
+        const k = Math.min(1, Math.max(0, (now - morphAt - p.s * STAGGER) / DUR));
+        progress = Math.min(progress, k);
+        if (k >= 1) { p.x += (tx - p.x) * 0.12; p.y += (ty - p.y) * 0.12; return; }
+        /* vol courbe depuis la position de départ : aucun point n'apparaît ni ne disparaît */
+        const e = k * k * (3 - 2 * k), dx = tx - p.fx, dy = ty - p.fy, L = Math.hypot(dx, dy) || 1;
+        const arc = Math.sin(Math.PI * e) * Math.min(90, L * 0.22) * (i % 2 ? 1 : -1);
+        p.x = p.fx + dx * e - (dy / L) * arc;
+        p.y = p.fy + dy * e + (dx / L) * arc;
       });
+      c.dataset.morph = progress.toFixed(2);
       placed = true;
     }
     const offset = (p) => {
@@ -386,41 +446,59 @@
       const k = (1 - d / 150) ** 2 * 34;
       return [p.x + (dx / d) * k, p.y + (dy / d) * k];
     };
-    function draw() {
+    let linked = 0;
+    function draw(snap) {
       x.clearRect(0, 0, W, H);
       const pos = P.map(offset);
-      if (net > 0.02) {
-        x.strokeStyle = `rgba(215,219,226,${0.13 * net})`; x.lineWidth = 1; x.beginPath();
+      linked += (net * (shape === 'network' ? drive : 0) - linked) * (snap ? 1 : 0.1);
+      c.dataset.links = linked.toFixed(2);
+      if (linked > 0.02) {
+        x.strokeStyle = `rgba(215,219,226,${0.13 * linked})`; x.lineWidth = 1; x.beginPath();
         edges.forEach(([a, b]) => { x.moveTo(pos[a][0], pos[a][1]); x.lineTo(pos[b][0], pos[b][1]); });
         x.stroke();
         pulses.forEach((q) => {
           q.k += 0.012;
           if (q.k >= 1) { const end = edges[q.e][1], next = edges.findIndex((e) => e[0] === end); q.e = next >= 0 ? next : Math.floor(Math.random() * edges.length); q.k = 0; }
           const [a, b] = edges[q.e], X = pos[a][0] + (pos[b][0] - pos[a][0]) * q.k, Y = pos[a][1] + (pos[b][1] - pos[a][1]) * q.k;
-          x.fillStyle = `rgba(255,255,255,${0.14 * net})`; x.fillRect(X - 4, Y - 4, 8, 8);
-          x.fillStyle = `rgba(255,255,255,${0.75 * net})`; x.fillRect(X - 1.5, Y - 1.5, 3, 3);
+          x.fillStyle = `rgba(255,255,255,${0.14 * linked})`; x.fillRect(X - 4, Y - 4, 8, 8);
+          x.fillStyle = `rgba(255,255,255,${0.75 * linked})`; x.fillRect(X - 1.5, Y - 1.5, 3, 3);
         });
       }
       if (orb > 0.02) {
         x.strokeStyle = `rgba(215,219,226,${0.13 * orb})`; x.lineWidth = 1;
-        for (let r = 0; r < 4; r++) { const R = (0.2 + r * 0.15) * Math.min(W, H); x.beginPath(); x.ellipse(W * 0.5, H * 0.5, R * 1.25, R, 0, 0, Math.PI * 2); x.stroke(); }
+        for (let r = 0; r < 4; r++) { const R = (0.2 + r * 0.15) * Math.min(W, H); x.beginPath(); x.ellipse(W * 0.5, H * 0.5, R * 1.25, R, orbitRot * RING_RATE[r], 0, Math.PI * 2); x.stroke(); }
       }
       if (wav > 0.02) {
         x.strokeStyle = `rgba(215,219,226,${0.16 * wav})`; x.lineWidth = 1;
-        for (let band = 0; band < 3; band++) { x.beginPath(); pos.forEach(([X, Y], i) => { if (i % 3 === band) { if (i < 3) x.moveTo(X, Y); else x.lineTo(X, Y); } }); x.stroke(); }
+        for (let band = 0; band < 3; band++) { x.beginPath(); pos.slice(0, N).forEach(([X, Y], i) => { if (i % 3 === band) { if (i < 3) x.moveTo(X, Y); else x.lineTo(X, Y); } }); x.stroke(); }
       }
+      if (sph > 0.02) {
+        const kx = 0.5, R = Math.min(W, H) * 0.42, rot = -0.35, a = t * 0.5, ca = Math.cos(rot), sa = Math.sin(rot);
+        x.strokeStyle = `rgba(255,255,255,${0.12 * sph})`; x.lineWidth = 1;
+        x.beginPath(); x.ellipse(W * kx, H * 0.5, R * 1.45, R * 0.42, rot, 0, Math.PI * 2); x.stroke();
+        const ox = W * kx + Math.cos(a) * R * 1.45 * ca - Math.sin(a) * R * 0.42 * sa, oy = H * 0.5 + Math.cos(a) * R * 1.45 * sa + Math.sin(a) * R * 0.42 * ca;
+        x.fillStyle = `rgba(255,255,255,${sph})`; x.shadowColor = '#fff'; x.shadowBlur = 14;
+        x.beginPath(); x.arc(ox, oy, 2.2, 0, Math.PI * 2); x.fill(); x.shadowBlur = 0;
+      }
+      let shown = 0;
       pos.forEach(([X, Y], i) => {
-        const shine = 0.26 + 0.42 * Math.max(0, Math.sin(i * 0.31 - t * 0.7)) ** 6;
-        x.fillStyle = `rgba(214,218,225,${shine})`;
-        x.fillRect(X, Y, 1.6, 1.6);
+        const p = P[i];
+        if (p.parent !== null && Math.hypot(p.x - P[p.parent].x, p.y - P[p.parent].y) < 4) return;
+        shown++;
+        const twinkle = 0.26 + 0.42 * Math.max(0, Math.sin(i * 0.31 - t * 0.7)) ** 6;
+        const size = 1.6 * (1 - sph) + (0.7 + p.depth * 1.6) * p.persp * sph;
+        x.fillStyle = `rgba(214,218,225,${twinkle * (1 - sph) + (0.14 + p.depth * 0.86) * 0.7 * sph})`;
+        x.fillRect(X, Y, size, size);
       });
+      c.dataset.visible = shown; c.dataset.sphere = sph.toFixed(2);
       c.dataset.frames = frames;
+      c.dataset.sample = `${P[7].x.toFixed(1)},${P[7].y.toFixed(1)}`;
     }
-    const still = () => { step(true); draw(); };
+    function still() { step(true); draw(true); }
     const loop = () => {
       raf = requestAnimationFrame(loop);
       if (alpha === 0) return;
-      t += 0.016; frames++; step(false); draw();
+      t += 0.016; frames++; step(false); draw(false);
     };
     const run = () => {
       cancelAnimationFrame(raf);
@@ -428,11 +506,16 @@
       if (isReduced() || document.hidden) still(); else raf = requestAnimationFrame(loop);
     };
     addEventListener('scroll', () => { if (!pending) { pending = true; requestAnimationFrame(sense); } }, { passive: true });
+    document.addEventListener('input', (e) => {
+      if (!e.target.matches('[data-machine-mix], [data-future] input')) return;
+      readDrive(); if (isReduced()) still();
+    });
     if (finePointer) addEventListener('pointermove', (e) => { px = e.clientX; py = e.clientY; }, { passive: true });
     addEventListener('resize', () => { size(); placed = false; run(); });
     document.addEventListener('visibilitychange', run);
     onMotionChange(run);
     c.dataset.frames = 0;
-    size(); run();
+    /* les points existent dès le chargement : la première forme visible naît déjà d'un vol */
+    size(); step(true); run();
   })();
 })();

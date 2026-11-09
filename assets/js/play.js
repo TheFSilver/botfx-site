@@ -726,6 +726,7 @@
       const body = `Bonjour François,\n\n${metier}Mon estimation sur botfx.fr : ${h} h répétitives par semaine et par personne, ${p} personne(s), ${c} € de l'heure, ${s} % automatisable, soit environ ${hours} h et ${euros} € par an.\n\nOn en parle ?\n`;
       $('[data-calc-cta]', form).href = `mailto:contact@botfx.fr?subject=${encodeURIComponent('Automatisation — mon estimation')}&body=${encodeURIComponent(body)}`;
     };
+    form.addEventListener('submit', (e) => e.preventDefault());
     form.addEventListener('input', update);
     document.addEventListener('botfx:niche', update);
     update();
@@ -794,13 +795,83 @@
     box.innerHTML = Object.entries(NICHES).map(([k, n]) => `<button type="button" class="chip" data-niche="${k}" aria-pressed="false">${n.label}</button>`).join('');
     $$('[data-niche]', box).forEach((b) => b.addEventListener('click', () => setNiche(b.dataset.niche === nicheKey ? '' : b.dataset.niche)));
   });
+  /* tâches du cockpit : selon la page en cours et le secteur choisi */
+  const TASKS_BY_TOPIC = {
+    automatisation: {
+      generic: ['Facture relancée', 'Devis signé, dossier créé', 'Pièce manquante réclamée', 'Rapport du lundi envoyé'],
+      artisan: ['Devis relancé', 'Acompte encaissé', 'Heures remontées', 'Papiers envoyés au comptable'],
+      commerce: ['Commande saisie', 'Stock synchronisé', 'Colis suivi', 'Panier abandonné relancé'],
+      restaurant: ['Facture fournisseur classée', 'Planning envoyé', 'Réservation confirmée', 'Heures transmises au comptable'],
+      sante: ['Rendez-vous confirmé', 'Impayé relancé', 'Document renvoyé', 'Comptabilité classée'],
+      cabinet: ['Pièce manquante réclamée', 'Lettre de mission signée', 'Honoraires relancés', 'Dossier classé'],
+      agence: ['Validation relancée', 'Facture partie', 'Heures comptées', 'Reporting livré'],
+      formation: ['Inscription saisie', 'Convocation envoyée', 'Émargement signé', 'Paiement relancé'],
+      immobilier: ['Annonce diffusée', 'Pièce réclamée', 'Compte rendu envoyé', 'Fiche client à jour'],
+    },
+    site: {
+      generic: ['Page chargée en un éclair', 'Demande de contact reçue', 'Page indexée par Google', 'Site accessible à tous'],
+      artisan: ['Réalisations en ligne', 'Demande de devis reçue', 'Page par ville publiée', 'Avis mis en avant'],
+      commerce: ['Vitrine mise à jour', 'Horaires à jour partout', 'Promotion publiée', 'Fiche produit indexée'],
+      restaurant: ['Carte en ligne', 'Réservation depuis le site', 'Horaires à jour partout', 'Menu du jour publié'],
+      sante: ['Prise de rendez-vous en ligne', 'Horaires à jour', 'Infos pratiques publiées', 'Site accessible à tous'],
+      cabinet: ['Expertise expliquée', 'Prise de contact qualifiée', 'FAQ métier publiée', 'Page par service indexée'],
+      agence: ['Portfolio en ligne', 'Étude de cas publiée', 'Demande qualifiée', 'Page offre indexée'],
+      formation: ['Programme en ligne', 'Dates à jour', 'Préinscription reçue', 'Page formation indexée'],
+      immobilier: ['Annonces à jour', 'Estimation demandée', 'Page quartier publiée', 'Contact qualifié'],
+    },
+    webapp: {
+      generic: ['Application installée', 'Ouverte sans réseau', 'Document déposé', 'Abonnement encaissé'],
+      artisan: ['Devis signé sur le chantier', 'Photos de chantier rangées', 'Planning des équipes à jour', 'Facture envoyée du téléphone'],
+      commerce: ['Commande suivie par le client', 'Stock consulté en rayon', 'Retour lancé par le client', 'Points de fidélité à jour'],
+      restaurant: ['Planning consulté par l\'équipe', 'Stock saisi en cuisine', 'Réservation gérée au téléphone', 'Fiche technique ouverte'],
+      sante: ['Tournée préparée', 'Fiche ouverte sans réseau', 'Document retrouvé', 'Rendez-vous ajouté'],
+      cabinet: ['Espace client ouvert', 'Document déposé par le client', 'Signature en ligne', 'Dossier suivi par le client'],
+      agence: ['Espace client ouvert', 'Validation en un clic', 'Livrable déposé', 'Abonnement encaissé'],
+      formation: ['Accès ouvert par QR code', 'Support consulté sans réseau', 'Émargement signé sur mobile', 'Abonnement activé'],
+      immobilier: ['Bon de visite signé sur mobile', 'Dossier acquéreur déposé', 'Suivi de vente partagé', 'Compte rendu dicté'],
+    },
+    wordpress: {
+      generic: ['Site sauvegardé', 'Extensions à jour', 'Pages clés testées', 'Rapport envoyé'],
+      artisan: ['Site sauvegardé', 'Formulaire de devis testé', 'Extensions à jour', 'Rapport envoyé'],
+      commerce: ['Boutique sauvegardée', 'Panier testé', 'Paiement vérifié', 'Rapport envoyé'],
+      restaurant: ['Site sauvegardé', 'Réservation testée', 'Carte vérifiée', 'Rapport envoyé'],
+      sante: ['Site sauvegardé', 'Prise de rendez-vous testée', 'Failles corrigées', 'Rapport envoyé'],
+      cabinet: ['Site sauvegardé', 'Formulaire de contact testé', 'Failles corrigées', 'Rapport envoyé'],
+      agence: ['Sites clients sauvegardés', 'Extensions à jour', 'Pages clés testées', 'Rapport client envoyé'],
+      formation: ['Site sauvegardé', 'Inscription testée', 'Calendrier vérifié', 'Rapport envoyé'],
+      immobilier: ['Site sauvegardé', 'Annonces vérifiées', 'Formulaire de contact testé', 'Rapport envoyé'],
+    },
+    ia: {
+      generic: ['Mail résumé', 'Information retrouvée', 'Source citée', 'Doute transmis à un humain'],
+      artisan: ['Mail de chantier trié', 'Bon de commande lu', 'Réponse client préparée', 'Norme retrouvée'],
+      commerce: ['Question client triée', 'Facture fournisseur lue', 'Fiche produit rédigée', 'Avis résumé'],
+      restaurant: ['Réponse à un avis préparée', 'Facture fournisseur lue', 'Allergènes retrouvés', 'Demande de groupe triée'],
+      sante: ['Message trié', 'Procédure retrouvée', 'Courrier type préparé', 'Réponse simple préparée'],
+      cabinet: ['Mail client résumé', 'Clause retrouvée', 'Pièce lue et classée', 'Réponse préparée'],
+      agence: ['Brief résumé', 'Compte rendu rédigé', 'Demande triée', 'Proposition préparée'],
+      formation: ['Demande d\'inscription triée', 'Évaluations résumées', 'Programme retrouvé', 'Réponse préparée'],
+      immobilier: ['Demande d\'acquéreur triée', 'Annonce rédigée', 'Diagnostic retrouvé', 'Réponse préparée'],
+    },
+  };
+  const PAGE_TOPIC = [['/services/creation-site', 'site'], ['/services/web-app', 'webapp'], ['/realisations/application-pwa', 'webapp'], ['/services/wordpress', 'wordpress'], ['/services/ia-', 'ia'], ['/services/', 'automatisation'], ['/realisations/', 'automatisation'], ['/developpeur-web', 'automatisation']];
+  const pageTopic = (PAGE_TOPIC.find(([prefix]) => location.pathname.startsWith(prefix)) || [])[1];
+  const PAGE_TASKS = pageTopic ? TASKS_BY_TOPIC[pageTopic] : null;
   const tickerLines = $$('[data-ticker] li');
   const tickerBase = tickerLines.map((l) => l.lastChild.textContent);
   const syncNiche = () => {
     selects.forEach((s) => { s.value = nicheKey; });
     $$('[data-niche]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.niche === nicheKey)));
-    tickerLines.forEach((l, i) => { l.lastChild.textContent = nb(niche() ? niche().ticker[i] : tickerBase[i]); });
+    const rows = PAGE_TASKS ? (PAGE_TASKS[nicheKey] || PAGE_TASKS.generic) : (niche() ? niche().ticker : tickerBase);
+    tickerLines.forEach((l, i) => { l.lastChild.textContent = nb(rows[i]); });
   };
+  /* les e-mails de contact annoncent l'activité, y compris en bas de chaque page */
+  const mailLinks = $$('a[href^="mailto:contact@botfx.fr?subject"]').filter((a) => !a.hasAttribute('data-calc-cta'));
+  mailLinks.forEach((a) => { a.dataset.baseHref = a.getAttribute('href'); });
+  const renderMails = () => mailLinks.forEach((a) => {
+    a.href = niche() ? `${a.dataset.baseHref}&body=${encodeURIComponent(`Bonjour François,\n\nMon activité : ${niche().label}.\n\n`)}` : a.dataset.baseHref;
+  });
   document.addEventListener('botfx:niche', syncNiche);
+  document.addEventListener('botfx:niche', renderMails);
+  renderMails();
   if (nicheKey) document.dispatchEvent(new CustomEvent('botfx:niche')); else syncNiche();
 })();

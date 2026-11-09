@@ -4,15 +4,19 @@ description: Recrutement sans service RH, arrivée des employés, mise en ligne 
 path: /realisations/automatisation-agence-web/
 fil: Réalisations=/realisations/; Agence web
 -->
-<div class="page page-hero">
+<section class="hero hero-sub" aria-labelledby="hero-title">
+  <canvas data-hero-canvas aria-hidden="true"></canvas>
   <div class="wrap">
     {{crumbs}}
     <p class="kicker mono">Étude de cas · quatre ans en production</p>
-    <h1 data-split>Une agence web, <span class="silver">et le travail d'une équipe qu'elle n'avait pas.</span></h1>
+    <h1 id="hero-title" data-split>Une agence web, <span class="silver">et le travail d'une équipe qu'elle n'avait pas.</span></h1>
     <p class="lede solo" data-reveal>Pendant quatre ans, j'ai été le seul technique d'une agence web. Il n'y avait personne aux RH, personne pour ranger les dossiers, personne pour répondre aux avis des clients. Alors j'ai construit la machine.</p>
     <div class="cta-row" data-reveal><a class="btn btn-primary" data-magnetic href="mailto:contact@botfx.fr?subject=Projet%20%E2%80%94%20botfx">Quel process vous coûte le plus de temps&nbsp;? <span class="arrow" aria-hidden="true">→</span></a></div>
+    {{> cockpit}}
   </div>
-</div>
+  <span class="sphere-hint mono" aria-hidden="true">Attrapez la sphère</span>
+  <span class="scroll-hint" aria-hidden="true"></span>
+</section>
 
 <section class="sec tight" data-play aria-labelledby="demo-title">
   <div class="wrap">

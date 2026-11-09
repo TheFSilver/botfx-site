@@ -5,15 +5,19 @@ path: /services/automatisation-n8n/
 fil: Services=/services/; Automatisation n8n
 service: Automatisation des processus (n8n, API, webhooks)
 -->
-<div class="page page-hero">
+<section class="hero hero-sub" aria-labelledby="hero-title">
+  <canvas data-hero-canvas aria-hidden="true"></canvas>
   <div class="wrap">
     {{crumbs}}
     <p class="kicker mono">Automatisation</p>
-    <h1 data-split>Vos outils, <span class="silver">enfin branchés.</span></h1>
+    <h1 id="hero-title" data-split>Vos outils, <span class="silver">enfin branchés.</span></h1>
     <p class="lede solo" data-reveal>Facturation, CRM, relances, reporting : je relie vos logiciels par API et n8n pour que les données circulent seules. Vous arrêtez de recopier, vous recommencez à travailler.</p>
     <div class="cta-row" data-reveal><a class="btn btn-primary" data-magnetic href="mailto:contact@botfx.fr?subject=Projet%20%E2%80%94%20botfx">Parlons de votre projet <span class="arrow" aria-hidden="true">→</span></a></div>
+    {{> cockpit}}
   </div>
-</div>
+  <span class="sphere-hint mono" aria-hidden="true">Attrapez la sphère</span>
+  <span class="scroll-hint" aria-hidden="true"></span>
+</section>
 
 <section class="sec tight" data-play aria-labelledby="demo-title">
   <div class="wrap">

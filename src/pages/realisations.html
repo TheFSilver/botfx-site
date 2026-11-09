@@ -4,14 +4,18 @@ description: Projets récents de botfx : portail pour un cabinet de paie, PWA ho
 path: /realisations/
 fil: Réalisations
 -->
-<div class="page page-hero">
+<section class="hero hero-sub" aria-labelledby="hero-title">
+  <canvas data-hero-canvas aria-hidden="true"></canvas>
   <div class="wrap">
     {{crumbs}}
     <p class="kicker mono">Réalisations</p>
-    <h1 data-split>Ce que la machine <span class="silver">fait à leur place.</span></h1>
+    <h1 id="hero-title" data-split>Ce que la machine <span class="silver">fait à leur place.</span></h1>
     <p class="lede solo" data-reveal>Ces projets sont racontés sans nom de client. Ce qui m'intéresse, et ce qui peut vous servir, c'est la logique : quelle tâche a disparu, et comment.</p>
+    {{> cockpit}}
   </div>
-</div>
+  <span class="sphere-hint mono" aria-hidden="true">Attrapez la sphère</span>
+  <span class="scroll-hint" aria-hidden="true"></span>
+</section>
 <section class="sec tight" aria-labelledby="liste-projets">
   <div class="wrap">
     <h2 id="liste-projets" class="sr-only">Projets récents</h2>
@@ -22,7 +26,7 @@ fil: Réalisations
     </div>
   </div>
 </section>
-<section class="sec tight">
+<section class="sec tight" data-bg="stars">
   <div class="wrap prose-wide">
     <h2>Ce que ces projets ont en commun</h2>
     <p>Dans chaque cas, les erreurs coûtent cher, en argent ou en réputation, et les personnes concernées n'ont pas de temps à perdre avec un nouvel outil. La technique doit donc disparaître derrière un parcours simple, et la règle métier doit être exacte.</p>

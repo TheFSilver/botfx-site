@@ -5,15 +5,19 @@ path: /services/wordpress-plugins-maintenance/
 fil: Services=/services/; WordPress
 service: Développement de plugins et maintenance WordPress
 -->
-<div class="page page-hero">
+<section class="hero hero-sub" aria-labelledby="hero-title">
+  <canvas data-hero-canvas aria-hidden="true"></canvas>
   <div class="wrap">
     {{crumbs}}
     <p class="kicker mono">WordPress</p>
-    <h1 data-split>Votre WordPress, <span class="silver">sous contrôle.</span></h1>
+    <h1 id="hero-title" data-split>Votre WordPress, <span class="silver">sous contrôle.</span></h1>
     <p class="lede solo" data-reveal>Extensions sur mesure, propres et testées. Mises à jour, sécurité, sauvegardes, performance et SEO suivis chaque mois, avec un compte rendu lisible.</p>
     <div class="cta-row" data-reveal><a class="btn btn-primary" data-magnetic href="mailto:contact@botfx.fr?subject=Projet%20%E2%80%94%20botfx">Parlons de votre projet <span class="arrow" aria-hidden="true">→</span></a></div>
+    {{> cockpit}}
   </div>
-</div>
+  <span class="sphere-hint mono" aria-hidden="true">Attrapez la sphère</span>
+  <span class="scroll-hint" aria-hidden="true"></span>
+</section>
 
 <section class="sec tight" data-play aria-labelledby="demo-title">
   <div class="wrap">

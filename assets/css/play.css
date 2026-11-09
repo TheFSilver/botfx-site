@@ -19,7 +19,12 @@
 .ticker li{display:flex;align-items:center;gap:10px;padding:4px 0;transition:color .4s}
 .ticker li.done{color:var(--fg)}
 .tick{width:14px;height:14px;border-radius:50%;border:1px solid var(--line-2);flex:none;position:relative;transition:background .3s,box-shadow .3s}
-.done .tick{background:#fff;box-shadow:0 0 10px rgba(255,255,255,.6)}
+.done .tick{background:#4ade80;border-color:#4ade80;box-shadow:0 0 10px rgba(74,222,128,.55)}
+.failed .tick{border-color:#f07167;background:rgba(240,113,103,.14)}
+.failed .tick::before,.failed .tick::after{content:"";position:absolute;left:2.5px;top:5.5px;width:7px;height:1.5px;background:#f07167;border-radius:1px;animation:cross .35s var(--ease)}
+.failed .tick::before{transform:rotate(45deg)}
+.failed .tick::after{transform:rotate(-45deg)}
+@keyframes cross{from{scale:0}to{scale:1}}
 .done .tick::after{content:"";position:absolute;left:4px;top:2px;width:4px;height:7px;border:solid #050506;border-width:0 1.5px 1.5px 0;transform:rotate(42deg)}
 .cockpit-foot{margin:0;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
 .is-off .cockpit-foot{color:#e8c468}
@@ -229,3 +234,12 @@ html.xray main *{outline:1px dashed rgba(255,255,255,.28);outline-offset:-1px}
 input[type=range]:focus-visible{outline:none}
 input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px #050506,0 0 0 5px #fff}
 input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px #050506,0 0 0 5px #fff}
+
+/* écrans peu hauts : le cercle épinglé doit tenir sous le menu */
+@media (min-width:761px) and (min-height:700px) and (max-height:760px){html.js:not([data-motion="reduced"]) .circle-copy h2{font-size:clamp(34px,3.6vw,46px);margin-bottom:16px}}
+
+
+/* hero des pages intérieures : même scène que l'accueil, titre qui ne touche jamais le cockpit */
+.hero-sub h1{font-size:clamp(40px,5.6vw,84px);max-width:15ch;margin:10px 0 22px}
+.hero-sub .crumbs{margin-bottom:14px}
+.hero-sub .lede{max-width:560px}
