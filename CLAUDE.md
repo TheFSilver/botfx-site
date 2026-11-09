@@ -14,7 +14,10 @@ Site vitrine botfx.fr. Statique, généré par `build.py` (gabarit commun + `src
 ## Structure
 - `src/pages/` : contenu des pages (bloc méta en tête : title, description, path, noindex).
 - `assets/` : css, js (vanilla), fonts, favicon, og.png (généré via `tools/og.html`).
-- `build.py` : génère dist/, sitemap.xml, robots.txt, _headers (CSP, HSTS, cache).
+- `build.py` : génère dist/, sitemap.xml, llms.txt, robots.txt, _headers (CSP, HSTS, cache) et le JSON-LD (Breadcrumb, Service, FAQPage).
+- `src/partials/` : blocs inclus avec `{{> nom}}`. Voir son CLAUDE.md.
+- `assets/js/play.js` + `assets/css/play.css` : terrain de jeu (cercle vertueux, machine avant/après, activité du visiteur, journée, jeu, calculateur, radiographie, téléphone).
+- Méta de page en plus : `fil:` (fil d'Ariane), `service:` (JSON-LD Service), `ld: business`.
 
 ## ⚠️ Dépôt PUBLIC (GitHub TheFSilver/botfx-site)
 - Jamais de données client réelles (noms, accès, chiffres) ni d'identifiants de compte dans les fichiers suivis.

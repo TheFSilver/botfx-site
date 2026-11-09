@@ -1,0 +1,29 @@
+<section id="jeu" class="sec" data-game data-play data-state="idle" data-duration="30" aria-labelledby="game-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div data-reveal>
+        <p class="kicker mono">Trente secondes</p>
+        <h2 id="game-title">À vous de supprimer <span class="silver">des tâches.</span></h2>
+      </div>
+      <p data-reveal style="--d:.1s">Elles tombent, vous cliquez. Attrapez le pilote automatique pour tout effacer. Au clavier, la barre d'espace supprime la plus basse.</p>
+    </div>
+    <div class="game">
+      <div class="game-hud mono">
+        <span>Supprimées <b data-game-score>0</b></span>
+        <span>Échappées <b data-game-missed>0</b></span>
+        <span>Temps <b data-game-time>30</b></span>
+        <span>Record <b data-game-best>0</b></span>
+      </div>
+      <div class="game-area" data-game-area tabindex="-1">
+        <div class="game-menu" data-game-menu>
+          <p class="game-result" data-game-result role="status"></p>
+          <div class="cta-row">
+            <button type="button" class="btn btn-primary" data-game-start>Lancer la partie</button>
+            <button type="button" class="btn" data-game-calm>Jouer sans chrono</button>
+          </div>
+          <a class="btn game-after" href="#calcul" data-game-after hidden>Et pour de vrai, ça donne quoi&nbsp;? <span class="arrow" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

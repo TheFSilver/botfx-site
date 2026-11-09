@@ -10,9 +10,12 @@ Chaque page source commence par un bloc de métadonnées :
 puis le contenu de <main>. Sortie : dist/<path>/index.html (+ 404.html, assets, sitemap, robots, _headers).
 Usage : python3 build.py
 """
+import datetime
 import hashlib
+import html
 import json
 import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -49,14 +52,93 @@ JSONLD = {
     ]},
 }
 
-NAV = [("/#services", "Services"), ("/#methode", "Méthode"), ("/outils/", "Outils")]
+NAV = [("/services/", "Services"), ("/realisations/", "Réalisations"), ("/#cercle", "Le cercle"), ("/#machine", "Jouer"), ("/outils/", "Outils")]
+
+FOOT_MAP = [
+    ("/services/automatisation-n8n/", "Automatisation n8n"),
+    ("/services/creation-site-sur-mesure/", "Sites sur mesure"),
+    ("/services/web-app-pwa-saas/", "Web apps, PWA, SaaS"),
+    ("/services/wordpress-plugins-maintenance/", "WordPress"),
+    ("/services/ia-agents-entreprise/", "IA et agents"),
+    ("/realisations/", "Réalisations"),
+    ("/developpeur-web-dax-landes/", "Dax et Landes"),
+]
+
+
+def typo(fragment):
+    """Espaces insécables du français, seulement dans le texte (jamais dans les balises)."""
+    def fix(m):
+        t = re.sub(r"(?:(?<=\S)|^) ([:;!?»])", "\u00a0\\1", m.group(0))
+        return t.replace("« ", "«\u00a0")
+    return re.sub(r"(?<=>)[^<]+(?=<)", fix, fragment)
+
+
+def include(fragment):
+    pattern = r"\{\{> *([\w-]+) *\}\}"
+    while re.search(pattern, fragment):
+        fragment = re.sub(pattern, lambda m: (ROOT / "src/partials" / f"{m.group(1)}.html").read_text().strip(), fragment)
+    return fragment
+
+
+def parse_fil(meta):
+    """`fil: Services=/services/; Automatisation` -> [(nom, url|None), ...]"""
+    out = [("Accueil", "/")]
+    for part in (p.strip() for p in meta.get("fil", "").split(";") if p.strip()):
+        name, _, href = part.partition("=")
+        out.append((name.strip(), href.strip() or None))
+    return out if len(out) > 1 else []
+
+
+def crumbs_html(meta):
+    fil = parse_fil(meta)
+    if not fil:
+        return ""
+    items = "".join(f'<li><a href="{h}">{n}</a></li>' if h else f'<li aria-current="page">{n}</li>' for n, h in fil)
+    return f'<nav class="crumbs" aria-label="Fil d\'Ariane"><ol>{items}</ol></nav>'
+
+
+def plain(fragment):
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", fragment)).replace("\u00a0", " ")).strip()
+
+
+def jsonld_blocks(meta, main_html, home):
+    url = SITE + meta["path"]
+    blocks = []
+    if home or meta.get("ld") == "business":
+        blocks.append(JSONLD)
+    fil = parse_fil(meta)
+    if fil:
+        blocks.append({"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": i + 1, "name": n, "item": SITE + h if h else url} for i, (n, h) in enumerate(fil)]})
+    if meta.get("service"):
+        blocks.append({"@context": "https://schema.org", "@type": "Service", "name": meta["service"], "serviceType": meta["service"],
+                       "url": url, "description": meta["description"], "areaServed": {"@type": "Country", "name": "France"},
+                       "provider": {"@type": "ProfessionalService", "@id": SITE + "/#botfx", "name": "botfx", "url": SITE + "/"}})
+    qa = re.findall(r'<details class="faq"[^>]*>\s*<summary>(.*?)</summary>\s*<div class="rep">(.*?)</div>\s*</details>', main_html, re.S)
+    if qa:
+        blocks.append({"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": plain(q), "acceptedAnswer": {"@type": "Answer", "text": plain(a)}} for q, a in qa]})
+    return "".join(f'<script type="application/ld+json">{json.dumps(b, ensure_ascii=False)}</script>' for b in blocks)
+
+
+def last_modified(src):
+    try:
+        out = subprocess.run(["git", "log", "-1", "--format=%cs", "--", str(src)], cwd=ROOT, capture_output=True, text=True, timeout=10).stdout.strip()
+        dirty = subprocess.run(["git", "status", "--porcelain", "--", str(src)], cwd=ROOT, capture_output=True, text=True, timeout=10).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        out, dirty = "", ""
+    return out if out and not dirty else datetime.date.today().isoformat()
 
 
 def page_html(meta, main, home=False):
     path = meta["path"]
     url = SITE + path
     nav = "".join(f'<a href="{h}">{l}</a>' for h, l in NAV)
-    ld = f'<script type="application/ld+json">{json.dumps(JSONLD, ensure_ascii=False)}</script>' if home else ""
+    foot_map = "".join(f'<a href="{h}">{l}</a>' for h, l in FOOT_MAP)
+    ld = jsonld_blocks(meta, main, home)
+    main = typo(main.replace("{{crumbs}}", crumbs_html(meta)))
+    play_css = '<link rel="stylesheet" href="/assets/css/play.css">' if "data-play" in main else ""
+    play_js = '<script src="/assets/js/play.js" defer></script>' if "data-play" in main else ""
     robots = '<meta name="robots" content="noindex">' if meta.get("noindex") else ""
     return f"""<!doctype html>
 <html lang="fr">
@@ -78,12 +160,13 @@ def page_html(meta, main, home=False):
 <meta property="og:image" content="{SITE}/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="botfx — WordPress, automatisation et IA">
+<meta property="og:image:alt" content="botfx — sites, web apps, automatisation et IA">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css">
+{play_css}
 <script>{BOOT}</script>
 {ld}
 </head>
@@ -92,13 +175,16 @@ def page_html(meta, main, home=False):
 <header class="top">
   <div class="wrap">
     <a class="logo" href="/" aria-label="botfx — accueil"><i aria-hidden="true"></i>botfx</a>
-    <nav class="nav" aria-label="Navigation principale">{nav}<a class="nav-cta" href="/#contact">Contact</a></nav>
+    <button type="button" class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="menu-principal"><span class="sr-only">Menu</span><i aria-hidden="true"></i><i aria-hidden="true"></i></button>
+    <nav class="nav" id="menu-principal" aria-label="Navigation principale">{nav}<a class="nav-cta" href="/#contact">Contact</a></nav>
   </div>
+  <span class="read-bar" aria-hidden="true"></span>
 </header>
 <main id="contenu">
 {main}
 </main>
 <footer>
+  <div class="wrap foot-map-wrap"><nav class="foot-map" aria-label="Plan du site">{foot_map}</nav></div>
   <div class="wrap">
     <p>© 2026 botfx — François Dasylva, entrepreneur individuel</p>
     <nav aria-label="Liens légaux">
@@ -112,6 +198,7 @@ def page_html(meta, main, home=False):
   </div>
 </footer>
 <script src="/assets/js/site.js" defer></script>
+{play_js}
 </body>
 </html>
 """
@@ -127,19 +214,25 @@ def main():
     import shutil
     shutil.rmtree(DIST, ignore_errors=True)
     shutil.copytree(ROOT / "assets", DIST / "assets")
-    urls = []
+    urls, llms = [], []
     for src in sorted((ROOT / "src/pages").glob("*.html")):
         meta, main_html = parse(src.read_text())
+        main_html = include(main_html)
         out = DIST / "404.html" if src.stem == "404" else DIST / meta["path"].lstrip("/") / "index.html"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(page_html(meta, main_html, home=meta["path"] == "/"))
         if not meta.get("noindex"):
-            urls.append(SITE + meta["path"])
+            urls.append((SITE + meta["path"], last_modified(src)))
+            llms.append(f"- [{meta['title']}]({SITE + meta['path']}) : {meta['description']}")
         print("built", out.relative_to(DIST))
     (DIST / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        + "".join(f"  <url><loc>{u}</loc></url>\n" for u in urls) + "</urlset>\n")
+        + "".join(f"  <url><loc>{u}</loc><lastmod>{d}</lastmod></url>\n" for u, d in urls) + "</urlset>\n")
     (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "llms.txt").write_text(
+        "# botfx\n\n> Studio indépendant de François Dasylva : sites sur mesure et SEO, web apps, PWA et SaaS, "
+        "plugins et maintenance WordPress, automatisation (n8n, API) et IA appliquée pour indépendants et PME, en France.\n\n"
+        "## Pages\n\n" + "\n".join(llms) + "\n\n## Contact\n\n- contact@botfx.fr\n")
     csp = ("default-src 'self'; script-src 'self' '" + BOOT_HASH + "'; style-src 'self' 'unsafe-inline'; "
            "img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
     (DIST / "_headers").write_text(f"""/*
@@ -159,7 +252,7 @@ def main():
 /assets/js/*
   Cache-Control: public, max-age=3600, must-revalidate
 """)
-    print("built sitemap.xml robots.txt _headers")
+    print("built sitemap.xml robots.txt llms.txt _headers")
 
 
 if __name__ == "__main__":

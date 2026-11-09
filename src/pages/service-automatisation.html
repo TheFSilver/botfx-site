@@ -1,0 +1,71 @@
+<!--
+title: Automatisation n8n et API pour PME et indépendants · botfx
+description: Automatisation sur mesure avec n8n et API : facturation, CRM, relances, reporting. Vos logiciels se parlent, vos équipes arrêtent de recopier.
+path: /services/automatisation-n8n/
+fil: Services=/services/; Automatisation n8n
+service: Automatisation des processus (n8n, API, webhooks)
+-->
+<div class="page page-hero">
+  <div class="wrap">
+    {{crumbs}}
+    <p class="kicker mono">Automatisation</p>
+    <h1 data-split>Vos outils, <span class="silver">enfin branchés.</span></h1>
+    <p class="lede solo" data-reveal>Facturation, CRM, relances, reporting : je relie vos logiciels par API et n8n pour que les données circulent seules. Vous arrêtez de recopier, vous recommencez à travailler.</p>
+    <div class="cta-row" data-reveal><a class="btn btn-primary" data-magnetic href="mailto:contact@botfx.fr?subject=Projet%20%E2%80%94%20botfx">Parlons de votre projet <span class="arrow" aria-hidden="true">→</span></a></div>
+  </div>
+</div>
+
+<section class="sec tight" data-play aria-labelledby="demo-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div data-reveal><p class="kicker mono">À essayer</p><h2 id="demo-title">Une automatisation, <span class="silver">ça se regarde.</span></h2></div>
+      <p data-reveal style="--d:.1s">Lancez un scénario, déplacez les blocs, coupez une étape. C'est exactement la logique de ce que je construis pour vous.</p>
+    </div>
+    <div data-machine data-scenarios="facture,lead,embauche"></div>
+  </div>
+</section>
+
+<section class="sec tight">
+  <div class="wrap">
+    <p class="kicker mono">Ce que j'automatise</p>
+    <h2 style="margin-bottom:28px">Les tâches qui reviennent, <span class="silver">et personne n'aime faire.</span></h2>
+    <div class="columns">
+      <article class="card"><h3>Facturation et relances</h3><p>Détection des retards, vérification du paiement, relance au bon ton, mise à jour de votre logiciel. Vous n'êtes prévenu que si le client ne répond pas.</p></article>
+      <article class="card"><h3>Dossiers et pièces</h3><p>Formulaires clients, dépôt de documents, relances limitées à ce qui manque, signature en ligne, classement automatique.</p></article>
+      <article class="card"><h3>CRM et demandes entrantes</h3><p>Un formulaire devient une fiche sans doublon, un brouillon de devis et une notification. La demande ne dort plus dans une boîte mail.</p></article>
+      <article class="card"><h3>Reporting</h3><p>Vos chiffres consolidés et envoyés chaque semaine, sans export ni copier-coller dans un tableur.</p></article>
+      <article class="card"><h3>Synchronisation d'outils</h3><p>Comptabilité, paiement, agenda, messagerie : les informations saisies une fois arrivent partout où elles sont utiles.</p></article>
+      <article class="card"><h3>Alertes utiles</h3><p>Une échéance, une anomalie, un dossier bloqué : vous êtes prévenu avant que cela devienne un problème, jamais pour rien.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="sec tight">
+  <div class="wrap prose-wide">
+    <h2>Pourquoi n8n, et quand je m'en passe</h2>
+    <p>n8n est un moteur d'automatisation que l'on peut héberger soi-même. Vos flux restent lisibles, modifiables, et vos données ne transitent pas forcément par un service américain facturé à l'exécution. C'est mon choix par défaut pour relier des outils du marché.</p>
+    <p>Il n'est pas toujours le bon choix. Quand un processus devient le cœur de votre métier, avec des règles fines, des signatures et un portail client, je code directement l'application. Sur un projet récent pour un <a href="/realisations/automatisation-cabinet-de-paie/">cabinet de paie</a>, nous avons retiré n8n en cours de route : le portail gère seul ses relances, et il y a une pièce de moins à maintenir.</p>
+    <p>Et quand l'automatisation doit tenir dans la durée, c'est un autre métier : j'ai <a href="/realisations/automatisation-agence-web/">fait tourner le parc d'une agence web pendant quatre ans</a>, recrutement compris.</p>
+    <h3>Ce que vous obtenez</h3>
+    <ol class="chain">
+      <li><b>Un diagnostic concret.</b> Vos tâches, leur fréquence, ce qui mérite d'être automatisé et ce qui ne le mérite pas.</li>
+      <li><b>Une première automatisation livrée vite.</b> Une tâche, branchée de bout en bout, testée sur de vrais cas.</li>
+      <li><b>Une reprise possible.</b> Comptes à votre nom, flux documentés, alertes en cas d'échec.</li>
+    </ol>
+    <p>Pour estimer ce que cela représente chez vous, essayez le <a href="/#calcul">calculateur de temps récupérable</a>.</p>
+  </div>
+</section>
+
+<section class="sec tight" aria-labelledby="faq-title">
+  <div class="wrap faq-grid">
+    <div data-reveal><p class="kicker mono">Questions</p><h2 id="faq-title">Avant de <span class="silver">se lancer.</span></h2></div>
+    <div class="faq-list" data-reveal>
+      <details class="faq"><summary>n8n ou Zapier, que choisir ?</summary><div class="rep"><p>Zapier va vite pour deux ou trois liaisons simples. Dès que les volumes montent, que la logique se complique ou que vous voulez garder la main sur vos données, n8n devient plus intéressant, notamment parce qu'il peut être auto-hébergé.</p></div></details>
+      <details class="faq"><summary>Que se passe-t-il quand une automatisation échoue ?</summary><div class="rep"><p>Chaque flux prévoit l'échec : nouvelle tentative, puis alerte à la bonne personne avec le contexte. Une automatisation sans gestion d'erreur est une panne silencieuse.</p></div></details>
+      <details class="faq"><summary>Mes logiciels n'ont pas d'API, c'est bloquant ?</summary><div class="rep"><p>Pas forcément. Export de fichiers, boîte mail dédiée, webhooks : il existe souvent un chemin. Je vous dis clairement quand il est trop fragile pour être conseillé.</p></div></details>
+      <details class="faq"><summary>Combien de temps pour une première automatisation ?</summary><div class="rep"><p>Cela dépend des accès et de la complexité. On choisit volontairement une première tâche courte, pour obtenir un résultat rapide et vérifier ensemble que l'approche vous convient.</p></div></details>
+    </div>
+  </div>
+</section>
+
+{{> cta}}

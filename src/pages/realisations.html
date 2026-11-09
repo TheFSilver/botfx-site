@@ -1,0 +1,35 @@
+<!--
+title: Réalisations : automatisation et applications métier · botfx
+description: Projets récents de botfx : portail pour un cabinet de paie, PWA hors ligne pour infirmiers libéraux et tout l'opérationnel d'une agence web.
+path: /realisations/
+fil: Réalisations
+-->
+<div class="page page-hero">
+  <div class="wrap">
+    {{crumbs}}
+    <p class="kicker mono">Réalisations</p>
+    <h1 data-split>Ce que la machine <span class="silver">fait à leur place.</span></h1>
+    <p class="lede solo" data-reveal>Ces projets sont racontés sans nom de client. Ce qui m'intéresse, et ce qui peut vous servir, c'est la logique : quelle tâche a disparu, et comment.</p>
+  </div>
+</div>
+<section class="sec tight" aria-labelledby="liste-projets">
+  <div class="wrap">
+    <h2 id="liste-projets" class="sr-only">Projets récents</h2>
+    <div class="cases">
+      {{> case-paie}}
+      {{> case-pwa}}
+      {{> case-avis}}
+    </div>
+  </div>
+</section>
+<section class="sec tight">
+  <div class="wrap prose-wide">
+    <h2>Ce que ces projets ont en commun</h2>
+    <p>Dans chaque cas, les erreurs coûtent cher, en argent ou en réputation, et les personnes concernées n'ont pas de temps à perdre avec un nouvel outil. La technique doit donc disparaître derrière un parcours simple, et la règle métier doit être exacte.</p>
+    <p>Dans chaque cas aussi, le travail a commencé par écouter comment les choses se passent vraiment, avant de choisir quoi que ce soit. Un outil qui impose une nouvelle façon de travailler finit abandonné. Un outil qui retire une tâche pénible sans rien demander en échange s'installe tout seul.</p>
+    <p>Enfin, les données sensibles sont traitées comme telles dès la conception : hébergement choisi, données réduites au strict nécessaire, accès contrôlés. Ce n'est pas une couche ajoutée à la fin, c'est ce qui détermine l'architecture de départ. Et chaque parcours important est couvert par des tests automatiques, pour que les évolutions ne cassent pas ce qui fonctionne.</p>
+    <p>Votre métier est différent&nbsp;? La méthode reste la même. <a href="/services/automatisation-n8n/">Automatisation</a>, <a href="/services/web-app-pwa-saas/">application</a> ou <a href="/services/ia-agents-entreprise/">IA</a> : on part toujours d'une tâche réelle, et on la supprime pour de bon.</p>
+  </div>
+</section>
+
+{{> cta}}

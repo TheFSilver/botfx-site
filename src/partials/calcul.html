@@ -1,0 +1,28 @@
+<section id="calcul" class="sec" data-play aria-labelledby="calc-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div data-reveal>
+        <p class="kicker mono">Votre compteur</p>
+        <h2 id="calc-title">Combien vous coûtent <span class="silver">vos tâches répétitives&nbsp;?</span></h2>
+      </div>
+      <p data-reveal style="--d:.1s">Quatre curseurs, vos chiffres. Le calcul est visible, rien n'est envoyé tant que vous ne m'écrivez pas.</p>
+    </div>
+    <form class="calc" onsubmit="return false" aria-label="Estimation du temps récupérable">
+      <div class="calc-inputs">
+        <div class="field"><label for="c-h">Heures répétitives par semaine et par personne <output for="c-h" data-calc-out="hours"></output></label><input id="c-h" type="range" min="1" max="30" value="6" data-calc="hours"></div>
+        <div class="field"><label for="c-p">Personnes concernées <output for="c-p" data-calc-out="people"></output></label><input id="c-p" type="range" min="1" max="20" value="2" data-calc="people"></div>
+        <div class="field"><label for="c-c">Coût horaire chargé, en euros <output for="c-c" data-calc-out="cost"></output></label><input id="c-c" type="range" min="15" max="120" value="35" step="1" data-calc="cost"></div>
+        <div class="field"><label for="c-a">Part automatisable, en pourcentage <output for="c-a" data-calc-out="share"></output></label><input id="c-a" type="range" min="20" max="90" value="60" step="5" data-calc="share"></div>
+      </div>
+      <div class="calc-out">
+        <p class="calc-num"><span data-calc-hours>338 h</span><small>récupérables par an</small></p>
+        <p class="calc-num"><span data-calc-euros>11 844 €</span><small>de temps de travail par an</small></p>
+        <div class="calc-grid" data-calc-grid aria-hidden="true"></div>
+        <p class="calc-grid-cap mono"><span data-calc-days>48</span> jours ouvrés sur 220</p>
+        <p class="fine mono" data-calc-formula></p>
+        <a class="btn btn-primary" data-calc-cta data-magnetic href="mailto:contact@botfx.fr">M'envoyer ce calcul <span class="arrow" aria-hidden="true">→</span></a>
+        <p class="fine">C'est une estimation à partir de vos chiffres. Ni un devis, ni une promesse.</p>
+      </div>
+    </form>
+  </div>
+</section>

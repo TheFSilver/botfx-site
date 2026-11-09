@@ -1,0 +1,54 @@
+<!--
+title: Automatisation d'un cabinet de paie : étude de cas · botfx
+description: Comment un portail automatise devis, signature, collecte de pièces, embauches et accords pour un cabinet de paie, avec des relances ciblées.
+path: /realisations/automatisation-cabinet-de-paie/
+fil: Réalisations=/realisations/; Cabinet de paie
+-->
+<div class="page page-hero">
+  <div class="wrap">
+    {{crumbs}}
+    <p class="kicker mono">Étude de cas · prototype complet, en validation</p>
+    <h1 data-split>Un cabinet de paie <span class="silver">qui ne court plus après les pièces.</span></h1>
+    <p class="lede solo" data-reveal>Le métier d'un gestionnaire de paie, c'est la paie. Pas les relances, les mails perdus et les signatures à poursuivre. Voici le système conçu pour lui rendre ce temps.</p>
+    <div class="cta-row" data-reveal><a class="btn btn-primary" data-magnetic href="mailto:contact@botfx.fr?subject=Projet%20%E2%80%94%20botfx">Parlons de votre projet <span class="arrow" aria-hidden="true">→</span></a></div>
+  </div>
+</div>
+
+<section class="sec tight" data-play aria-labelledby="demo-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div data-reveal><p class="kicker mono">À essayer</p><h2 id="demo-title">Le circuit d'une embauche, <span class="silver">à essayer.</span></h2></div>
+      <p data-reveal style="--d:.1s">Scénario simplifié, avec des données fictives. Coupez une étape pour voir ce que l'équipe devait faire à la main.</p>
+    </div>
+    <div data-machine data-scenarios="embauche"></div>
+  </div>
+</section>
+
+<section class="sec tight">
+  <div class="wrap">
+    <p class="kicker mono">Ce qui se fait seul</p>
+    <h2 style="margin-bottom:28px">De la signature du devis <span class="silver">au dossier complet.</span></h2>
+    <div class="columns">
+      <article class="card"><h3>Devis calculé</h3><p>Le SIRET remplit l'identité depuis le registre public, la grille tarifaire calcule le devis, qui part à la signature en ligne.</p></article>
+      <article class="card"><h3>Relances ciblées</h3><p>Chaque relance ne réclame que les pièces manquantes. Sans réponse, l'alerte remonte à la bonne personne.</p></article>
+      <article class="card"><h3>Embauche de bout en bout</h3><p>Le salarié dépose ses pièces et signe un contrat déjà rempli. L'employeur contresigne, chacun reçoit son exemplaire scellé.</p></article>
+      <article class="card"><h3>Sorties de salariés</h3><p>Les pièces demandées changent selon le motif de départ, sans que personne n'ait à y penser.</p></article>
+      <article class="card"><h3>Accords d'entreprise</h3><p>Remise du projet, délais, vote, procès-verbal, formalités de dépôt : le circuit est suivi étape par étape.</p></article>
+      <article class="card"><h3>Tables officielles à jour</h3><p>Service de santé au travail et conseil de prud'hommes retrouvés par commune, actualisés depuis les sources officielles.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="sec tight">
+  <div class="wrap prose-wide">
+    <h2>Les choix qui comptent</h2>
+    <p><b>Une seule tâche reste à l'humain.</b> Quand un dossier d'embauche est complet, il ne reste à l'équipe qu'à le saisir dans son logiciel de paie. Tout ce qui précédait, collecte, relances, signatures, se fait sans elle.</p>
+    <p><b>Des données de paie chez le client.</b> Le système est prévu pour tourner sur un serveur en France, au nom du cabinet. Aucune donnée de paie ne passe par mes propres serveurs.</p>
+    <p><b>Moins de pièces, moins de pannes.</b> Une première version reposait sur n8n. Le portail a fini par gérer lui-même ses relances chaque matin : une brique de moins à surveiller. La signature s'appuie sur un outil open source auto-hébergé, intégré dans les pages du cabinet.</p>
+    <p><b>Testé comme un vrai système.</b> Des scénarios automatiques rejouent les parcours complets, jusqu'à la signature à la souris dans l'écran réel.</p>
+    <p class="note">Ce projet est un prototype complet qui tourne sur de vrais circuits, avec des données fictives. Il est en cours de validation avec le cabinet.</p>
+    <div class="link-row"><a class="btn" href="/services/automatisation-n8n/">Voir l'offre automatisation</a><a class="btn" href="/realisations/">Toutes les réalisations</a></div>
+  </div>
+</section>
+
+{{> cta}}
