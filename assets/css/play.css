@@ -49,18 +49,19 @@
   html.js:not([data-motion="reduced"]) [data-circle-step] p{display:grid;max-height:0;margin-bottom:0;overflow:hidden;visibility:hidden;transition:max-height .5s var(--ease),margin .5s var(--ease)}
   html.js:not([data-motion="reduced"]) [data-circle-step].is-active p{max-height:120px;margin-bottom:14px;visibility:visible}
 }
-@media (max-width:760px) and (min-height:700px){
+@media (max-width:760px) and (min-height:520px){
   html.js:not([data-motion="reduced"]) .circle{height:calc(100svh + (var(--n) - 1) * 70svh)}
   html.js:not([data-motion="reduced"]) .circle-stick{position:sticky;top:0;height:100svh;padding:76px 0 0}
   html.js:not([data-motion="reduced"]) .circle-grid{grid-template-columns:1fr;gap:6px}
   html.js:not([data-motion="reduced"]) .circle-stage{order:-1}
-  html.js:not([data-motion="reduced"]) .circle-stage canvas{width:min(350px,88vw);margin:0 auto}
+  html.js:not([data-motion="reduced"]) .circle-stage canvas{width:min(350px,88vw,calc(100svh - 372px));margin:0 auto}
   html.js:not([data-motion="reduced"]) .circle-copy .kicker{display:none}
   html.js:not([data-motion="reduced"]) .circle-copy h2{font-size:27px;margin:0 0 8px}
   html.js:not([data-motion="reduced"]) .circle-steps li:not(.is-active){display:none}
   html.js:not([data-motion="reduced"]) .circle-steps{border:0}
   html.js:not([data-motion="reduced"]) .circle-steps li{border:0}
 }
+@media (max-width:340px) and (min-height:520px){html.js:not([data-motion="reduced"]) .circle-copy h2{font-size:22px;margin-bottom:4px}}
 @media (max-width:760px){.circle-grid{grid-template-columns:1fr}}
 
 /* machine */

@@ -679,6 +679,25 @@ with sync_playwright() as p:
             check("patient" not in txt.lower(), f"{path} {sel}: health mode keeps patients away from AI")
         ctx.close()
 
+    print("[cercle sur téléphone]")
+    for w, h in ((360, 520), (360, 640), (360, 657), (390, 664), (412, 732), (320, 568)):
+        ctx, pg, *_ = open_page(b, "/", viewport={"width": w, "height": h}, has_touch=True, is_mobile=True)
+        pg.locator("[data-niche-select]").select_option("artisan")
+        C = pg.locator("[data-circle]")
+        goto = lambda f: (pg.evaluate("f => {const s=document.querySelector('[data-circle]');scrollTo({top:s.offsetTop+(s.offsetHeight-innerHeight)*f,behavior:'instant'})}", f), pg.wait_for_timeout(700))
+        check(pg.evaluate("getComputedStyle(document.querySelector('[data-circle] .circle-stick')).position") == "sticky", f"{w}x{h}: circle pinned on phone")
+        goto(0); a0 = float(C.get_attribute("data-angle"))
+        goto(.5); a1 = float(C.get_attribute("data-angle"))
+        check(abs(a1 - a0) > 0.5, f"{w}x{h}: circle turns with the scroll ({a0} -> {a1})")
+        for f in (0, .2, .4, .6, .8, 1):
+            goto(f)
+            top, bottom, inner, stage = pg.evaluate("(()=>{const c=document.querySelector('.circle-copy').getBoundingClientRect(),g=document.querySelector('.circle-stage canvas').getBoundingClientRect();return [g.top,c.bottom,innerHeight,g.bottom<=c.top+1]})()")
+            check(top >= 50 and bottom <= inner + 1 and stage, f"{w}x{h}: ring and text fit at {f} ({top:.0f}-{bottom:.0f}/{inner})")
+            check(C.get_attribute("data-clipped") == "0", f"{w}x{h}: labels not cropped at {f}")
+        goto(1)
+        check(pg.evaluate("[...document.querySelectorAll('[data-circle-step]')].findIndex(e => e.classList.contains('is-active'))") == 5, f"{w}x{h}: ends on the last step")
+        ctx.close()
+
     print("[calculateur]")
     ctx, pg, *_ = open_page(b, "/", viewport=VIEW)
     digits = lambda t: "".join(ch for ch in t if ch.isdigit())
