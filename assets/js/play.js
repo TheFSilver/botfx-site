@@ -149,14 +149,22 @@
         ctx.fillText(String(i + 1).padStart(2, '0'), x, y + 0.5);
         if (glow > 0.05 && !small) {
           ctx.globalAlpha = glow; ctx.fillStyle = '#f5f5f6'; ctx.font = '500 15px Geist,sans-serif';
-          const out = 1.2, lx = cx + Math.cos(a) * Ro * out, ly = cy + Math.sin(a) * Ro * out;
-          ctx.textAlign = Math.abs(Math.cos(a)) < 0.2 ? 'center' : Math.cos(a) > 0 ? 'left' : 'right';
+          /* l'étiquette part du bord du rond, du côté extérieur du cercle */
+          const ca = Math.cos(a), sa = Math.sin(a), gap = r + 12, ax = x + ca * gap, ay = y + sa * gap;
           const parts = shorten(labels[i]);
           const tw = Math.max(...parts.map((l) => ctx.measureText(l).width)), th = parts.length * 18;
-          const align = ctx.textAlign;
-          const left = clamp(align === 'center' ? lx - tw / 2 : align === 'left' ? lx : lx - tw, 4, Math.max(4, W - tw - 4));
-          const top = clamp(ly - th / 2, 4, Math.max(4, H - th - 4));
+          let left = ca > 0.2 ? ax : ca < -0.2 ? ax - tw : ax - tw / 2;
+          let top = sa > 0.2 ? ay : sa < -0.2 ? ay - th : ay - th / 2;
+          if (left < 4 || top < 4 || left + tw > W - 4 || top + th > H - 4) {
+            /* pas la place à l'extérieur : à côté du rond, du côté où ça tient */
+            left = x + r + 12 + tw <= W - 4 ? x + r + 12 : x - r - 12 - tw;
+            top = y - th / 2;
+          }
+          left = clamp(left, 4, Math.max(4, W - tw - 4));
+          top = clamp(top, 4, Math.max(4, H - th - 4));
           if (left < 0 || top < 0 || left + tw > W || top + th > H) clipped++;
+          /* l'étiquette ne doit jamais recouvrir le rond de son étape */
+          if (left < x + r && left + tw > x - r && top < y + r && top + th > y - r) clipped++;
           ctx.textAlign = 'left';
           parts.forEach((l, j) => ctx.fillText(l, left, top + 9 + j * 18));
           ctx.globalAlpha = 1;
@@ -661,7 +669,9 @@
     }
     const begin = () => {
       score = 0; missed = 0; clear(); result.textContent = ''; after.hidden = true;
-      menu.hidden = true; game.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' });
+      menu.hidden = true;
+      /* toute la zone de chute à l'écran, score compris : le bas de la zone colle au bas de l'écran */
+      scrollTo({ top: scrollY + area.getBoundingClientRect().bottom - innerHeight + 8, behavior: reduced() ? 'auto' : 'smooth' });
     };
     function startTimed() {
       begin(); calm = false; playing = true; area.classList.remove('is-calm');

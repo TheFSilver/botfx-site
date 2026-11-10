@@ -680,8 +680,9 @@ with sync_playwright() as p:
         ctx.close()
 
     print("[cercle sur téléphone]")
-    for w, h in ((360, 520), (360, 640), (360, 657), (390, 664), (412, 732), (320, 568)):
-        ctx, pg, *_ = open_page(b, "/", viewport={"width": w, "height": h}, has_touch=True, is_mobile=True)
+    for w, h in ((360, 520), (360, 640), (360, 657), (390, 664), (412, 732), (320, 568), (800, 600), (1024, 640), (1280, 600), (1366, 625), (1366, 657)):
+        mob = w < 700
+        ctx, pg, *_ = open_page(b, "/", viewport={"width": w, "height": h}, has_touch=mob, is_mobile=mob)
         pg.locator("[data-niche-select]").select_option("artisan")
         C = pg.locator("[data-circle]")
         goto = lambda f: (pg.evaluate("f => {const s=document.querySelector('[data-circle]');scrollTo({top:s.offsetTop+(s.offsetHeight-innerHeight)*f,behavior:'instant'})}", f), pg.wait_for_timeout(700))
@@ -692,10 +693,19 @@ with sync_playwright() as p:
         for f in (0, .2, .4, .6, .8, 1):
             goto(f)
             top, bottom, inner, stage = pg.evaluate("(()=>{const c=document.querySelector('.circle-copy').getBoundingClientRect(),g=document.querySelector('.circle-stage canvas').getBoundingClientRect();return [g.top,c.bottom,innerHeight,g.bottom<=c.top+1]})()")
-            check(top >= 50 and bottom <= inner + 1 and stage, f"{w}x{h}: ring and text fit at {f} ({top:.0f}-{bottom:.0f}/{inner})")
+            check(top >= 50 and bottom <= inner + 1 and (stage or not mob), f"{w}x{h}: ring and text fit at {f} ({top:.0f}-{bottom:.0f}/{inner})")
             check(C.get_attribute("data-clipped") == "0", f"{w}x{h}: labels not cropped at {f}")
         goto(1)
         check(pg.evaluate("[...document.querySelectorAll('[data-circle-step]')].findIndex(e => e.classList.contains('is-active'))") == 5, f"{w}x{h}: ends on the last step")
+        ctx.close()
+
+    print("[jeu : zone entière à l'écran]")
+    for w, h, mob in ((360, 657, True), (412, 780, True), (768, 960, True), (1280, 600, False), (1366, 625, False), (1440, 780, False)):
+        ctx, pg, *_ = open_page(b, "/", viewport={"width": w, "height": h}, is_mobile=mob, has_touch=mob)
+        pg.locator("[data-game]").evaluate("e => e.dataset.duration = 4")
+        pg.locator("[data-game-start]").click(); pg.wait_for_timeout(1600)
+        top, bottom, hud = pg.evaluate("(()=>{const a=document.querySelector('[data-game-area]').getBoundingClientRect(),h=document.querySelector('.game-hud').getBoundingClientRect();return [a.top,a.bottom,h.top]})()")
+        check(hud >= 60 and bottom <= h + 1, f"{w}x{h}: score and whole falling zone on screen ({hud:.0f}, {top:.0f}-{bottom:.0f}/{h})")
         ctx.close()
 
     print("[calculateur]")
