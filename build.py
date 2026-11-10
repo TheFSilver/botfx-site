@@ -230,12 +230,12 @@ def fold(line):
 
 
 def vcard():
-    photo = __import__("base64").b64encode((ROOT / "assets/apple-touch-icon.png").read_bytes()).decode()
+    photo = __import__("base64").b64encode((ROOT / "assets/contact-photo.jpg").read_bytes()).decode()
     lines = ["BEGIN:VCARD", "VERSION:3.0", "N:Dasylva;François;;;", "FN:François Dasylva", "ORG:BotFx",
              "TITLE:Développeur web\\, automatisation et IA", "TEL;TYPE=CELL,VOICE:+33607213614",
              "EMAIL;TYPE=WORK,INTERNET:francois@botfx.fr", "URL:https://botfx.fr",
              "X-SOCIALPROFILE;TYPE=linkedin:https://www.linkedin.com/in/francois-dasylva/",
-             f"PHOTO;ENCODING=b;TYPE=PNG:{photo}", "END:VCARD"]
+             f"PHOTO;ENCODING=b;TYPE=JPEG:{photo}", "END:VCARD"]
     return "\r\n".join(fold(l) for l in lines) + "\r\n"
 
 

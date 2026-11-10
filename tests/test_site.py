@@ -621,7 +621,13 @@ with sync_playwright() as p:
     r = _get("/bni/francois-dasylva.vcf")
     check("vcard" in r.headers.get("Content-Type", "").lower(), f"vcard content type ({r.headers.get('Content-Type')})")
     v = r.read().decode()
-    for needle in ("BEGIN:VCARD", "VERSION:3.0", "FN:François Dasylva", "ORG:BotFx", "TEL;TYPE=CELL,VOICE:+33607213614", "EMAIL;TYPE=WORK,INTERNET:francois@botfx.fr", "URL:https://botfx.fr", "linkedin.com/in/francois-dasylva", "PHOTO;ENCODING=b;TYPE=PNG:", "END:VCARD"):
+    import base64 as _b64
+    carte = v.replace("\r\n ", "")
+    photo = [l for l in carte.split("\r\n") if l.startswith("PHOTO;")]
+    check(len(photo) == 1 and photo[0].startswith("PHOTO;ENCODING=b;TYPE=JPEG:"), "the contact card carries a JPEG photo")
+    octets = _b64.b64decode(photo[0].split(":", 1)[1]) if photo else b""
+    check(octets[:2] == b"\xff\xd8" and 15_000 < len(octets) < 150_000, f"the photo is a real, light picture ({len(octets)} bytes)")
+    for needle in ("BEGIN:VCARD", "VERSION:3.0", "FN:François Dasylva", "ORG:BotFx", "TEL;TYPE=CELL,VOICE:+33607213614", "EMAIL;TYPE=WORK,INTERNET:francois@botfx.fr", "URL:https://botfx.fr", "linkedin.com/in/francois-dasylva", "PHOTO;ENCODING=b;TYPE=JPEG:", "END:VCARD"):
         check(needle in v, f"vcard has {needle[:30]}")
     check("\r\n" in v and all(len(l.encode()) <= 75 for l in v.split("\r\n")), "vcard lines folded at 75 bytes (CRLF)")
     check("/bni" not in _get("/sitemap.xml").read().decode(), "/bni stays out of the sitemap")
