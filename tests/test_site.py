@@ -20,6 +20,9 @@ SERVICES = ["/services/automatisation-n8n/", "/services/creation-site-sur-mesure
 CASES = ["/realisations/automatisation-cabinet-de-paie/", "/realisations/application-pwa-infirmiers-liberaux/", "/realisations/automatisation-agence-web/"]
 CONTENT = ["/services/", *SERVICES, "/realisations/", *CASES, "/developpeur-web-dax-landes/"]
 PAGES = ["/", *CONTENT, "/outils/", "/mentions-legales/", "/confidentialite/"]
+# Les 8 tailles de référence du site (fenêtre utile, barre du navigateur déduite) :
+# grand écran, portable large, portable, petit portable, tablette paysage, tablette portrait, grand et petit téléphone.
+SIZES8 = ((1920, 950), (1536, 730), (1366, 625), (1180, 760), (1024, 700), (820, 1100), (430, 740), (375, 553))
 
 
 def check(cond, msg):
@@ -679,8 +682,30 @@ with sync_playwright() as p:
             check("patient" not in txt.lower(), f"{path} {sel}: health mode keeps patients away from AI")
         ctx.close()
 
+    print("[8 tailles de référence]")
+    HERO_HIT = """(() => { const c = document.querySelector('.cockpit').getBoundingClientRect();
+      const hit = r => r.width && Math.min(r.right, c.right) - Math.max(r.left, c.left) > 0 && Math.min(r.bottom, c.bottom) - Math.max(r.top, c.top) > 0;
+      const out = [];
+      for (const e of document.querySelectorAll('.hero .wrap > *:not(.cockpit), .hero .wrap > * > *:not(.cockpit)')) {
+        if (e.contains(document.querySelector('.cockpit')) || e.closest('.cockpit')) continue;
+        const r = document.createRange(); r.selectNodeContents(e);
+        if ([...r.getClientRects()].some(hit)) out.push(e.tagName + '.' + e.className);
+      }
+      return out; })()"""
+    for w, h in SIZES8:
+        mob = w < 800
+        for path in ["/", *CONTENT]:
+            ctx, pg, *_ = open_page(b, path, viewport={"width": w, "height": h}, is_mobile=mob, has_touch=w < 1200)
+            sw = pg.evaluate("[document.documentElement.scrollWidth, document.documentElement.clientWidth]")
+            check(sw[0] <= sw[1], f"{w}x{h} {path}: no horizontal scroll ({sw[0]}/{sw[1]})")
+            head = pg.evaluate("(()=>{const h=document.querySelector('header').getBoundingClientRect(),m=document.querySelector('.menu-btn'),n=document.querySelector('header nav');const vis=e=>e&&e.getBoundingClientRect().width>0&&getComputedStyle(e).visibility!=='hidden';return [h.height, vis(m)||vis(n)]})()")
+            check(head[0] < 110 and head[1], f"{w}x{h} {path}: header fits with its navigation ({head[0]:.0f}px)")
+            if path == "/":
+                check(pg.evaluate(HERO_HIT) == [], f"{w}x{h}: hero text not covered by the activity card ({pg.evaluate(HERO_HIT)})")
+            ctx.close()
+
     print("[cercle sur téléphone]")
-    for w, h in ((360, 520), (360, 640), (360, 657), (390, 664), (412, 732), (320, 568), (800, 600), (1024, 640), (1280, 600), (1366, 625), (1366, 657)):
+    for w, h in ((360, 520), (360, 640), (360, 657), (390, 664), (412, 732), (320, 568), (800, 600), (1024, 640), (1280, 600), (1366, 625), (1366, 657), *SIZES8):
         mob = w < 700
         ctx, pg, *_ = open_page(b, "/", viewport={"width": w, "height": h}, has_touch=mob, is_mobile=mob)
         pg.locator("[data-niche-select]").select_option("artisan")
@@ -700,7 +725,7 @@ with sync_playwright() as p:
         ctx.close()
 
     print("[jeu : zone entière à l'écran]")
-    for w, h, mob in ((360, 657, True), (412, 780, True), (768, 960, True), (1280, 600, False), (1366, 625, False), (1440, 780, False)):
+    for w, h, mob in ((360, 657, True), (412, 780, True), (768, 960, True), (1280, 600, False), (1366, 625, False), (1440, 780, False), *((w, h, w < 800) for w, h in SIZES8)):
         ctx, pg, *_ = open_page(b, "/", viewport={"width": w, "height": h}, is_mobile=mob, has_touch=mob)
         pg.locator("[data-game]").evaluate("e => e.dataset.duration = 4")
         pg.locator("[data-game-start]").click(); pg.wait_for_timeout(1600)
